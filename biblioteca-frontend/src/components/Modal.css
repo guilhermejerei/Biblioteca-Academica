@@ -1,0 +1,102 @@
+/* ══════════════════════════════════════════════════
+   Modal — container genérico de formulários
+   ══════════════════════════════════════════════════ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(16, 13, 10, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+  animation: modal-fade 0.18s ease;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--bege);
+  width: 100%;
+  max-width: 520px;
+  /* A caixa nunca ultrapassa a viewport — o scroll fica DENTRO do modal */
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(16,13,10,0.28), 0 4px 16px rgba(16,13,10,0.12);
+  animation: modal-up 0.25s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes modal-up {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--off-white);
+  /* Com flex-direction column no modal-box, o header fica fixo no topo */
+  flex-shrink: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--marrom-escuro);
+  letter-spacing: -0.01em;
+}
+
+.modal-fechar {
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: var(--bege-medio);
+  line-height: 1;
+  padding: 0.3rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-fechar:hover {
+  color: var(--marrom-escuro);
+  background: var(--off-white);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-box {
+    border-radius: 18px 18px 0 0;
+    border-bottom: none;
+    max-height: 95vh;
+  }
+}

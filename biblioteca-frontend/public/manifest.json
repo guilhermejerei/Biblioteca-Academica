@@ -1,0 +1,14 @@
+{
+  "name": "Biblioteca Acadêmica",
+  "short_name": "Biblioteca",
+  "description": "Sistema de gerenciamento de acervo e empréstimos para biblioteca universitária",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F3",
+  "theme_color": "#1e1410",
+  "icons": [
+    { "src": "/icone-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icone-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icone.svg",     "sizes": "any",      "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

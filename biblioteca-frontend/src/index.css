@@ -1,0 +1,110 @@
+/* ══════════════════════════════════════════════════
+   Variáveis de design — sistema unificado
+   ══════════════════════════════════════════════════ */
+:root {
+  /* Paleta quente principal */
+  --vinho:         #8C2B2B;
+  --vinho-hover:   #7a2424;
+  --laranja:       #c35a2b;
+  --laranja-claro: #e98f4c;
+  --marrom:        #6B4A3A;
+  --marrom-escuro: #2E211B;
+  --marrom-apoio:  #5A463C;
+
+  /* Superfícies */
+  --areia:         #D9C3A8;
+  --off-white:     #F4EFE8;       /* levemente mais quente que antes */
+  --bege:          #E8DDD2;
+  --bege-medio:    #CDB9A8;
+  --fundo:         #FAF7F3;       /* creme muito claro — não branco puro */
+
+  /* Interior escuro (sidebar futura, etc.) */
+  --escuro:        #100d0a;
+  --escuro-2:      #1a1410;
+
+  /* Tipografia */
+  --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --sans:  'DM Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* Elevações */
+  --sombra-xs: 0 1px 3px rgba(46,33,27,0.07);
+  --sombra-sm: 0 2px 8px rgba(46,33,27,0.09);
+  --sombra-md: 0 4px 20px rgba(46,33,27,0.10);
+  --sombra-lg: 0 8px 40px rgba(46,33,27,0.13);
+
+  /* Foco — anel padronizado para todos os inputs/selects/wrappers */
+  --foco-ring: 0 0 0 3px rgba(195, 90, 43, 0.18);
+  --foco-borda: var(--laranja);
+  --sombra-sm: 0 2px 8px rgba(46,33,27,0.09);
+  --sombra-md: 0 4px 20px rgba(46,33,27,0.10);
+  --sombra-lg: 0 8px 40px rgba(46,33,27,0.13);
+}
+
+/* ══════════════════════════════════════
+   Reset
+   ══════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--sans);
+  background-color: var(--fundo);
+  color: var(--marrom-escuro);
+  min-height: 100vh;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nas páginas de auth o fundo vem do GrainyBackground */
+body:has(.gb) {
+  background-color: transparent;
+}
+
+main {
+  min-height: calc(100vh - 60px);
+  background-color: var(--fundo);
+  /* padding-bottom em mobile é definido no Navbar.css via @media */
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* Focus global — botões, links e outros elementos interativos */
+:focus-visible {
+  outline: 2px solid var(--vinho);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Inputs e selects dentro de wrappers não mostram outline próprio —
+   o wrapper mostra o ring via :focus-within */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+/* Scrollbar discreta */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: var(--off-white); }
+::-webkit-scrollbar-thumb  { background: var(--bege-medio); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--marrom-apoio); }

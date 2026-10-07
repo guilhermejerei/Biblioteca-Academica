@@ -1,0 +1,107 @@
+/* Fundo em gradiente com grão, animado só com transform (leve para o navegador). */
+
+.gb {
+  position: fixed;
+  inset: 0;
+  z-index: 0;           /* body fica transparente via :has(.gb) no index.css */
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+  background: #f4f0ea;
+}
+
+/* Cada mancha é um círculo grande, com queda suave até transparente e blur forte.
+   O blur é o que dá a borda "de luz", e não de forma desenhada. */
+.gb__blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+/* Esfera laranja, deslocada para a direita e cortada pela borda */
+.gb__sun {
+  width: 82vmax;
+  height: 82vmax;
+  right: -26vmax;
+  top: 16vmax;
+  filter: blur(64px);
+  background: radial-gradient(circle at 48% 52%,
+    #f2a869 0%, #e98f4c 22%, #d9743a 42%, #c35a2b 58%,
+    rgba(195, 90, 43, 0.55) 66%, rgba(195, 90, 43, 0) 74%);
+  animation: gb-sun 26s ease-in-out infinite alternate;
+}
+
+/* Luz branca no canto superior esquerdo */
+.gb__light {
+  width: 74vmax;
+  height: 74vmax;
+  left: -30vmax;
+  top: -34vmax;
+  filter: blur(56px);
+  background: radial-gradient(circle,
+    #fffdfa 0%, rgba(255, 253, 250, 0.95) 34%,
+    rgba(255, 253, 250, 0.5) 54%, rgba(255, 253, 250, 0) 72%);
+  animation: gb-light 34s ease-in-out infinite alternate;
+}
+
+/* Sombra berinjela na base */
+.gb__shade {
+  width: 96vmax;
+  height: 64vmax;
+  left: -14vmax;
+  bottom: -34vmax;
+  border-radius: 50%;
+  filter: blur(80px);
+  background: radial-gradient(ellipse at 50% 38%,
+    #1b0e11 0%, #321410 34%, #5a2418 52%,
+    rgba(90, 36, 24, 0.5) 64%, rgba(90, 36, 24, 0) 74%);
+  animation: gb-shade 38s ease-in-out infinite alternate;
+}
+
+/* Nota fria: o cinza que faz o conjunto parecer iluminado */
+.gb__cool {
+  width: 44vmax;
+  height: 44vmax;
+  left: -18vmax;
+  bottom: -8vmax;
+  filter: blur(60px);
+  opacity: 0.9;
+  background: radial-gradient(circle,
+    #8a8784 0%, rgba(138, 135, 132, 0.6) 40%, rgba(138, 135, 132, 0) 70%);
+  animation: gb-cool 42s ease-in-out infinite alternate;
+}
+
+/* Grão: tile 256px repetido, gerado via Canvas no JS.
+   soft-light mantém as cores e só adiciona textura analógica. */
+.gb__grain {
+  position: absolute;
+  inset: 0;
+  background-size: 256px 256px;
+  background-repeat: repeat;
+  mix-blend-mode: soft-light;
+  opacity: 0.52;
+}
+
+@keyframes gb-sun {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-7vmax, -6vmax, 0) scale(1.09); }
+}
+
+@keyframes gb-light {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(6vmax, 4vmax, 0) scale(1.12); }
+}
+
+@keyframes gb-shade {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(8vmax, -5vmax, 0) scale(1.07); }
+}
+
+@keyframes gb-cool {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(5vmax, -6vmax, 0) scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb__blob { animation: none; }
+}

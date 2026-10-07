@@ -1,0 +1,503 @@
+/* ══════════════════════════════════════════════
+   Navbar — barra de navegação principal
+   ══════════════════════════════════════════════ */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Marrom escuro quente — conecta com a paleta do site */
+  background: linear-gradient(180deg, #1e1410 0%, #160f0b 100%);
+  border-bottom: 1px solid rgba(217,195,168,0.1); /* areia translúcida */
+  padding: 0 1.75rem;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 1rem;
+}
+
+/* ── Logo / Marca ────────────────────────────── */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.navbar-logo-sigla {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden; /* garante que o rx do ícone seja respeitado */
+}
+
+.navbar-logo-sigla svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.navbar-logo-nome {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: rgba(217,195,168,0.9); /* areia suave */
+  letter-spacing: -0.01em;
+}
+
+/* ── Links de navegação ──────────────────────── */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.navbar-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  color: rgba(217,195,168,0.45);
+  text-decoration: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.79rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.18s, background 0.18s;
+  line-height: 1;
+}
+
+/* Ícone dentro do link */
+.nav-icone {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.18s;
+}
+
+.nav-icone svg {
+  width: 14px;
+  height: 14px;
+}
+
+.navbar-links a:hover {
+  color: rgba(217,195,168,0.88);
+  background: rgba(217,195,168,0.07);
+}
+
+.navbar-links a:hover .nav-icone {
+  opacity: 1;
+}
+
+/* Estado ativo — vinho, coerente com o restante do site */
+.navbar-links a.active {
+  color: #e8a87c;
+  font-weight: 600;
+  background: rgba(140,43,43,0.22);
+}
+
+.navbar-links a.active .nav-icone {
+  opacity: 1;
+}
+
+/* ── Botão do usuário + dropdown ─────────────── */
+.navbar-usuario {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.navbar-usuario-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.32rem 0.7rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  font-family: var(--sans);
+}
+
+.navbar-usuario-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.16);
+}
+
+.navbar-usuario-btn:focus-visible {
+  outline: 2px solid var(--laranja);
+  outline-offset: 2px;
+}
+
+.navbar-usuario-nome {
+  color: rgba(255,255,255,0.82);
+  font-family: var(--sans);
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.navbar-usuario-role {
+  font-family: var(--sans);
+  font-size: 0.67rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.role-biblio {
+  background: rgba(195,90,43,0.2);
+  color: #f2b07a;
+}
+
+.role-aluno {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.55);
+}
+
+.navbar-usuario-chevron {
+  width: 13px;
+  height: 13px;
+  color: rgba(255,255,255,0.35);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.navbar-usuario-chevron.aberto {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown ────────────────────────────────── */
+.navbar-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--escuro-2);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  min-width: 172px;
+  z-index: 200;
+  overflow: hidden;
+  animation: dd-open 0.15s cubic-bezier(0.22,1,0.36,1);
+}
+
+@keyframes dd-open {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.navbar-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.65);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar-dropdown-item svg {
+  width: 15px;
+  height: 15px;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.navbar-dropdown-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+}
+
+.navbar-dropdown-item:hover svg {
+  color: rgba(255,255,255,0.6);
+}
+
+.navbar-dropdown-item:focus-visible {
+  outline: 2px solid var(--laranja);
+  outline-offset: -2px;
+}
+
+.navbar-dropdown-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+
+.navbar-dropdown-sair {
+  color: #f2b07a;
+}
+
+.navbar-dropdown-sair svg {
+  color: rgba(242,176,122,0.6);
+}
+
+.navbar-dropdown-sair:hover {
+  background: rgba(195,90,43,0.12);
+  color: #f7c49a;
+}
+
+/* ── Hambúrguer — não usado mais, mantido por compatibilidade ── */
+.navbar-hamburger { display: none; }
+
+/* ── Mobile: navbar topo some, bottom bar assume ──────── */
+@media (max-width: 768px) {
+  .navbar-desktop { display: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════
+   Bottom bar — navegação mobile estilo app
+   Visível apenas abaixo de 768px
+   ══════════════════════════════════════════════════════ */
+
+.bottom-bar {
+  display: none;          /* escondida por padrão — só aparece em mobile */
+}
+
+@media (max-width: 768px) {
+  /* Empurra o conteúdo para cima para não ficar atrás da bottom bar */
+  main {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-top: 1.25rem;
+  }
+
+  .bottom-bar {
+    display: flex;
+    align-items: stretch;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: var(--escuro);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.35);
+  }
+
+  /* Item da bottom bar (NavLink ou button) */
+  .bottom-bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,0.38);
+    text-decoration: none;
+    transition: color 0.18s;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-bar-item:hover {
+    color: rgba(255,255,255,0.65);
+  }
+
+  /* Estado ativo — destaque em laranja */
+  .bottom-bar-item--ativo {
+    color: #f2b07a !important;
+  }
+
+  /* Ponto indicador no topo do item ativo */
+  .bottom-bar-item--ativo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2.5px;
+    border-radius: 0 0 3px 3px;
+    background: linear-gradient(90deg, #c35a2b, #f2b07a);
+  }
+
+  .bottom-bar-icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    transition: transform 0.18s;
+  }
+
+  .bottom-bar-item--ativo .bottom-bar-icone {
+    transform: scale(1.1);
+  }
+
+  .bottom-bar-icone svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bottom-bar-label {
+    font-family: var(--sans);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .bottom-bar-item--ativo .bottom-bar-label {
+    font-weight: 700;
+  }
+
+  /* Wrapper do botão "Mais" e do "Sair" do aluno */
+  .bottom-bar-mais-wrapper {
+    flex: 1;
+    display: flex;
+    position: relative;
+  }
+
+  .bottom-bar-mais-wrapper .bottom-bar-item,
+  .bottom-bar-mais-wrapper .bottom-bar-sair-btn {
+    flex: 1;
+  }
+
+  /* Painel "Mais" — sobe da bottom bar */
+  .bottom-bar-mais-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 4px;
+    background: var(--escuro-2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+    min-width: 190px;
+    overflow: hidden;
+    z-index: 300;
+    animation: mais-open 0.2s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes mais-open {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .bottom-bar-mais-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 0.8rem 1.1rem;
+    background: none;
+    border: none;
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-bar-mais-item svg {
+    width: 18px;
+    height: 18px;
+    color: rgba(255,255,255,0.35);
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+
+  .bottom-bar-mais-item:hover,
+  .bottom-bar-mais-item:active {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.95);
+  }
+
+  .bottom-bar-mais-item:hover svg,
+  .bottom-bar-mais-item:active svg {
+    color: rgba(255,255,255,0.6);
+  }
+
+  .bottom-bar-mais-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 0.2rem 0;
+  }
+
+  .bottom-bar-mais-sair {
+    color: #f2b07a;
+  }
+
+  .bottom-bar-mais-sair svg {
+    color: rgba(242,176,122,0.5);
+  }
+
+  .bottom-bar-mais-sair:hover {
+    background: rgba(195,90,43,0.15);
+    color: #f7c49a;
+  }
+}
+
+/* ── Botão Sincronizar Capas na navbar ───────────── */
+.navbar-sinc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, border-color 0.16s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.navbar-sinc-btn svg { width: 14px; height: 14px; }
+
+.navbar-sinc-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.navbar-sinc-btn--ativo {
+  color: #f2b07a !important;
+  border-color: rgba(195,90,43,0.4) !important;
+  background: rgba(195,90,43,0.1) !important;
+}
+
+.navbar-sinc-btn:disabled { cursor: not-allowed; }
+
+/* Ícone girando durante sincronização */
+.sinc-girando {
+  animation: spin 0.8s linear infinite;
+}

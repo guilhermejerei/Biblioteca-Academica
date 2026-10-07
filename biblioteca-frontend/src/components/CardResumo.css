@@ -1,0 +1,92 @@
+/* ══════════════════════════════════════════════════
+   CardResumo — cards de métricas do Dashboard
+   ══════════════════════════════════════════════════ */
+
+.card-resumo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem 1.6rem;
+  border: 1px solid var(--bege);
+  box-shadow: var(--sombra-xs);
+  transition: box-shadow 0.2s, transform 0.2s;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-resumo::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #c35a2b, #8c2b2b);
+  opacity: 0.55;
+}
+
+.card-resumo:hover {
+  box-shadow: var(--sombra-md);
+  transform: translateY(-2px);
+}
+
+/* Variantes */
+.card-resumo.card-verde::before   { background: linear-gradient(90deg, #4a9060, #2e6b47); opacity: 0.6; }
+.card-resumo.card-amarelo::before { background: linear-gradient(90deg, #a07830, #7a5820); opacity: 0.6; }
+.card-resumo.card-vermelho::before{ background: linear-gradient(90deg, #b02020, #7a1818); opacity: 0.7; }
+
+/* Ícone */
+.card-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--off-white);
+  margin-bottom: 1.1rem;
+  flex-shrink: 0;
+}
+
+.card-resumo.card-verde   .card-icone { background: #edf5f0; }
+.card-resumo.card-vermelho .card-icone { background: #fdf3f3; }
+.card-resumo.card-amarelo  .card-icone { background: #faf5eb; }
+
+.card-icone svg {
+  width: 20px;
+  height: 20px;
+  color: var(--marrom);
+}
+
+.card-resumo.card-verde   .card-icone svg { color: #4a9060; }
+.card-resumo.card-vermelho .card-icone svg { color: var(--vinho); }
+.card-resumo.card-amarelo  .card-icone svg { color: #9c7a3a; }
+
+/* Info */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.card-valor {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--marrom-escuro);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.card-titulo {
+  font-family: var(--sans);
+  font-size: 0.77rem;
+  color: var(--marrom-apoio);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 480px) {
+  .card-resumo { min-width: 100%; }
+}

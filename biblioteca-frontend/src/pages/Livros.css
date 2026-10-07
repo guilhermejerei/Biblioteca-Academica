@@ -1,0 +1,1293 @@
+/* ══════════════════════════════════════════════════════
+   Livros — catálogo e filtros
+   ══════════════════════════════════════════════════════ */
+
+/* ── Hero ────────────────────────────────────────────── */
+.livros-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--bege);
+  gap: 1rem;
+}
+
+.livros-hero-titulo {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  color: var(--marrom-escuro);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+}
+
+.livros-hero-titulo em {
+  font-style: italic;
+  color: var(--laranja);
+}
+
+.livros-hero-sub {
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  color: var(--marrom-apoio);
+  margin: 0;
+}
+
+.livros-hero-stat {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.livros-hero-numero {
+  display: block;
+  font-family: var(--serif);
+  font-size: 3rem;
+  font-weight: 400;
+  color: var(--laranja);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.livros-hero-label {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--marrom-apoio);
+}
+
+/* ══════════════════════════════════════════════════════
+   Área de filtros
+   ══════════════════════════════════════════════════════ */
+
+.livros-filtros-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  /* z-index garante que os dropdowns dos filtros fiquem acima dos cards */
+  position: relative;
+  z-index: 10;
+}
+
+/* Busca */
+.livros-busca-wrapper {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  padding: 0 0.75rem;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  box-shadow: var(--sombra-xs);
+}
+
+.livros-busca-wrapper:focus-within {
+  border-color: var(--foco-borda);
+  box-shadow: var(--foco-ring);
+}
+
+.livros-busca-icone {
+  width: 17px;
+  height: 17px;
+  color: var(--marrom-apoio);
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.livros-busca-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.72rem 0.65rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--marrom-escuro);
+  background: transparent;
+}
+
+.livros-busca-input::placeholder { color: var(--areia); }
+.livros-busca-input::-webkit-search-cancel-button { display: none; }
+
+.livros-busca-limpar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--bege-medio);
+  font-size: 0.85rem;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.livros-busca-limpar:hover { color: var(--marrom-escuro); }
+
+/* Linha toggle + limpar */
+.livros-filtros-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.livros-filtros-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.9rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  box-shadow: var(--sombra-xs);
+}
+
+.livros-filtros-toggle svg { width: 15px; height: 15px; }
+
+.livros-filtros-toggle:hover {
+  background: var(--off-white);
+  border-color: var(--bege-medio);
+  color: var(--marrom-escuro);
+}
+
+.livros-filtros-toggle.ativo {
+  background: rgba(195,90,43,0.08);
+  border-color: rgba(195,90,43,0.3);
+  color: var(--laranja);
+}
+
+.livros-filtros-badge {
+  font-size: 0.55rem;
+  color: var(--laranja);
+  line-height: 1;
+}
+
+/* Painel de filtros */
+.livros-filtros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  padding: 1.1rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  box-shadow: var(--sombra-sm);
+  animation: filtros-open 0.2s cubic-bezier(0.22,1,0.36,1) both;
+  /* Sombra reforçada para aparecer acima dos cards */
+  position: relative;
+  z-index: 20;
+}
+
+@keyframes filtros-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.livros-filtro-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;  /* necessário para o dropdown do sel-buscavel */
+}
+
+.livros-filtro-campo label {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.livros-limpar-btn {
+  align-self: flex-end;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--bege-medio);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.livros-limpar-btn:hover {
+  background: var(--off-white);
+  color: var(--marrom-escuro);
+}
+
+/* ══════════════════════════════════════════════════════
+   Select com busca interna (Categoria, Autor, Época,
+   Disponibilidade — todos com o mesmo visual)
+   ══════════════════════════════════════════════════════ */
+
+.sel-buscavel { position: relative; }
+
+.sel-buscavel-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.52rem 0.75rem;
+  background: var(--fundo);
+  border: 1px solid var(--bege);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  color: var(--areia);
+  cursor: pointer;
+  transition: border-color 0.16s;
+  text-align: left;
+}
+
+.sel-buscavel-trigger.com-valor { color: var(--marrom-escuro); }
+.sel-buscavel-trigger:hover     { border-color: var(--bege-medio); }
+
+.sel-buscavel.aberto .sel-buscavel-trigger {
+  border-color: var(--foco-borda);
+  box-shadow: var(--foco-ring);
+}
+
+.sel-buscavel-trigger svg {
+  width: 14px;
+  height: 14px;
+  color: var(--bege-medio);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.sel-buscavel.aberto .sel-buscavel-trigger svg { transform: rotate(180deg); }
+
+/* Dropdown do select buscável —
+   z-index alto garante que fica acima dos cards */
+.sel-buscavel-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-width: 300px;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(16,13,10,0.16);
+  z-index: 100;
+  overflow: hidden;
+  animation: filtros-open 0.15s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.sel-buscavel-busca {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--off-white);
+}
+
+.sel-buscavel-busca svg {
+  width: 14px;
+  height: 14px;
+  color: var(--marrom-apoio);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.sel-buscavel-busca input {
+  border: none;
+  outline: none;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--marrom-escuro);
+  background: transparent;
+  width: 100%;
+}
+.sel-buscavel-busca input::placeholder { color: var(--areia); }
+
+.sel-buscavel-dropdown ul {
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 0.3rem 0;
+}
+
+.sel-buscavel-dropdown li {
+  padding: 0.55rem 0.85rem;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  color: var(--marrom-escuro);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.sel-buscavel-dropdown li:hover { background: var(--off-white); }
+
+.sel-buscavel-dropdown li.selecionado {
+  background: rgba(195,90,43,0.07);
+  color: var(--laranja);
+  font-weight: 600;
+}
+
+.sel-buscavel-dropdown li.sem-resultado {
+  color: var(--bege-medio);
+  font-size: 0.8rem;
+  cursor: default;
+  font-style: italic;
+}
+.sel-buscavel-dropdown li.sem-resultado:hover { background: transparent; }
+
+/* ══════════════════════════════════════════════════════
+   Barra de controles: resultado + dropdown de grid
+   ══════════════════════════════════════════════════════ */
+
+.livros-controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.livros-resultado-total {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--marrom-apoio);
+  margin: 0;
+}
+
+/* ── Dropdown de tamanho do grid ─────────────────────── */
+.grid-dropdown {
+  position: relative;
+}
+
+.grid-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.8rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  box-shadow: var(--sombra-xs);
+}
+
+.grid-dropdown-trigger:hover {
+  background: var(--off-white);
+  border-color: var(--bege-medio);
+  color: var(--marrom-escuro);
+}
+
+.grid-dropdown-trigger.aberto {
+  border-color: var(--laranja);
+  color: var(--laranja);
+  background: rgba(195,90,43,0.05);
+}
+
+.grid-dropdown-chevron {
+  width: 13px;
+  height: 13px;
+  color: var(--bege-medio);
+  transition: transform 0.2s;
+}
+.grid-dropdown-trigger.aberto .grid-dropdown-chevron { transform: rotate(180deg); }
+
+/* Menu dropdown */
+.grid-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(16,13,10,0.14);
+  z-index: 100;
+  overflow: hidden;
+  min-width: 180px;
+  animation: filtros-open 0.15s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.grid-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* centraliza ícone + texto */
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--marrom-escuro);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.grid-dropdown-item:hover { background: var(--off-white); }
+
+.grid-dropdown-item.ativo {
+  background: rgba(195,90,43,0.07);
+  color: var(--laranja);
+  font-weight: 700;
+}
+
+.grid-dropdown-item svg { color: currentColor; opacity: 0.7; flex-shrink: 0; }
+.grid-dropdown-item.ativo svg { opacity: 1; }
+
+/* ══════════════════════════════════════════════════════
+   Grid de cards
+   4 linhas fixas × N colunas configuráveis
+   ══════════════════════════════════════════════════════ */
+
+.livros-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--livros-colunas, 4), minmax(0, 1fr));
+  grid-template-rows: repeat(4, auto);    /* 4 linhas fixas */
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* ── Card ────────────────────────────────────────────── */
+.livro-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--bege);
+  overflow: hidden;
+  box-shadow: var(--sombra-xs);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.livro-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-md);
+}
+
+.livro-card--indisponivel { opacity: 0.7; }
+.livro-card--indisponivel:hover { transform: none; box-shadow: var(--sombra-xs); }
+
+/* Capa — deixa o CapaLivro ditar a proporção 2:3, sem cortar */
+.livro-capa {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--off-white);
+  border-radius: 8px 8px 0 0;
+}
+
+/* Sobreposições na capa */
+.livro-capa-ano {
+  position: absolute;
+  bottom: 0.6rem;
+  right: 0.75rem;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.55);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  z-index: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.livro-capa-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(16,13,10,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+/* Corpo */
+.livro-card-corpo {
+  padding: 1rem 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.2rem;
+}
+
+.livro-card-categoria {
+  font-family: var(--sans);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--laranja);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.livro-card-titulo {
+  font-family: var(--serif);
+  font-size: 0.98rem;
+  font-weight: 400;
+  color: var(--marrom-escuro);
+  line-height: 1.25;
+  margin: 0.2rem 0 0;
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.livro-card-autor {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--marrom-apoio);
+  margin: 0.2rem 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.livro-card-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--off-white);
+}
+
+.livro-estoque { font-family: var(--sans); font-size: 0.72rem; font-weight: 600; }
+.livro-estoque--ok  { color: #2a7a42; }
+.livro-estoque--sem { color: var(--bege-medio); }
+
+.livro-card-btn {
+  padding: 0.35rem 0.85rem;
+  border: none;
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  background: linear-gradient(135deg, #c35a2b 0%, #8c2b2b 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(140,43,43,0.28);
+}
+
+.livro-card-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+
+.livro-card-btn:disabled {
+  background: var(--off-white);
+  color: var(--bege-medio);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Estado vazio */
+.livros-vazio {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--marrom-apoio);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0.7;
+}
+.livros-vazio svg { width: 40px; height: 40px; opacity: 0.4; }
+
+/* ══════════════════════════════════════════════════════
+   Paginação
+   ══════════════════════════════════════════════════════ */
+
+.livros-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--bege);
+  flex-wrap: wrap;
+}
+
+.pag-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bege);
+  border-radius: 8px;
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s, box-shadow 0.14s;
+}
+
+.pag-btn:hover:not(:disabled):not(.ativo) {
+  background: var(--off-white);
+  border-color: var(--bege-medio);
+  color: var(--marrom-escuro);
+}
+
+.pag-btn.ativo {
+  background: linear-gradient(135deg, #c35a2b 0%, #8c2b2b 100%);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(140,43,43,0.32);
+  cursor: default;
+}
+
+.pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.pag-nav { padding: 0 0.55rem; }
+.pag-nav svg { width: 15px; height: 15px; }
+
+.pag-reticencias {
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  color: var(--bege-medio);
+  padding: 0 0.2rem;
+  user-select: none;
+  line-height: 36px;
+}
+
+/* ══════════════════════════════════════════════════════
+   Responsividade
+   ══════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  /* Tablet: nunca mais que 3 colunas */
+  .livros-grid {
+    grid-template-columns: repeat(min(var(--livros-colunas, 4), 3), minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  /* Mobile grande: 2 colunas fixas, ignora o seletor */
+  .livros-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.85rem;
+  }
+
+  .livros-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .livros-hero-titulo { font-size: 1.9rem; }
+  .livros-hero-stat   { text-align: left; }
+
+  /* Capa menor em mobile — aspect-ratio mantém proporção automaticamente */
+
+  /* Corpo do card mais compacto */
+  .livro-card-corpo  { padding: 0.75rem 0.85rem 0.9rem; }
+  .livro-card-titulo { font-size: 0.88rem; }
+  .livro-card-autor  { font-size: 0.72rem; }
+
+  /* Controles empilhados */
+  .livros-controles {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  /* Filtros em coluna única */
+  .livros-filtros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Dropdown do grid — abre para a esquerda em telas pequenas */
+  .grid-dropdown-menu {
+    right: auto;
+    left: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  /* Telas muito pequenas */
+
+  .livro-card-btn {
+    font-size: 0.68rem;
+    padding: 0.28rem 0.6rem;
+  }
+
+  .pag-btn { min-width: 30px; height: 30px; font-size: 0.75rem; }
+}
+
+/* ══════════════════════════════════════════════════════
+   Estilos de Gestão de Capas
+   ══════════════════════════════════════════════════════ */
+
+.header-acoes-bibliotecario {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-secundario-capas {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  background: #fff;
+  border: 1px solid var(--bege-medio, #d9cfc1);
+  border-radius: 8px;
+  font-family: var(--sans, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--marrom-escuro, #2c221e);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.btn-secundario-capas:hover {
+  background: var(--off-white, #f9f6f0);
+  border-color: var(--laranja, #c35a2b);
+  color: var(--laranja, #c35a2b);
+}
+
+.badge-notificacao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e65100;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.15rem 0.45rem;
+  line-height: 1;
+}
+
+/* Seção de Capa no Formulário de Edição */
+.modal-capa-secao {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--bege, #e6ded3);
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.modal-capa-box {
+  width: 110px;
+  height: 165px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+.modal-capa-detalhes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-capa-detalhes h4 {
+  font-family: var(--sans, sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--marrom-escuro, #2c221e);
+  margin: 0;
+}
+
+.modal-capa-status-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.badge-capa {
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-capa-ENCONTRADA {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.badge-capa-SEM_CAPA {
+  background: #f5f5f5;
+  color: #616161;
+  border: 1px solid #e0e0e0;
+}
+
+.badge-capa-REVISAR {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffe0b2;
+}
+
+.modal-capa-acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.btn-capa-mini {
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--bege-medio, #d9cfc1);
+  background: #fff;
+  color: var(--marrom-escuro, #2c221e);
+  transition: all 0.15s;
+}
+
+.btn-capa-mini:hover:not(:disabled) {
+  background: var(--off-white, #f9f6f0);
+  border-color: var(--laranja, #c35a2b);
+  color: var(--laranja, #c35a2b);
+}
+
+.btn-capa-mini:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+
+
+/* Botão de revisão — só aparece quando há itens pendentes */
+.btn-revisao-capas {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  background: #fff8f0;
+  border: 1px solid #f0c080;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #9c6c14;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.btn-revisao-capas:hover {
+  background: #fff3e0;
+  border-color: #e09030;
+  color: #7a5010;
+}
+
+.btn-revisao-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e65100;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.1rem 0.4rem;
+  line-height: 1.4;
+  min-width: 18px;
+}
+
+/* Modal de revisão */
+.lista-revisao-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item-revisao-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  background: #fff;
+  align-items: flex-start;
+}
+
+.item-revisao-capa {
+  width: 72px;
+  height: 108px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.item-revisao-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.item-revisao-info h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--marrom-escuro);
+  line-height: 1.3;
+}
+
+.item-revisao-info p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--marrom-apoio);
+}
+
+.item-revisao-aviso {
+  margin-top: 0.3rem !important;
+  font-size: 0.73rem !important;
+  color: #9c6c14 !important;
+  font-style: italic;
+}
+
+.item-revisao-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.btn-aprovar-capa {
+  padding: 0.42rem 0.85rem;
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.btn-aprovar-capa:hover { opacity: 0.88; }
+
+.btn-rejeitar-capa {
+  padding: 0.42rem 0.85rem;
+  background: transparent;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-rejeitar-capa:hover { background: #ffebee; }
+
+/* ══════════════════════════════════════════════════════
+   Layout com drawer lateral — visão do bibliotecário
+   ══════════════════════════════════════════════════════ */
+
+.bib-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  min-height: calc(100vh - 60px);
+  position: relative;
+}
+
+/* Área principal encolhe quando o drawer abre */
+.bib-main {
+  flex: 1;
+  min-width: 0;
+  padding: clamp(1rem, 4vw, 2.5rem) clamp(1rem, 3.5vw, 2.25rem);
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Card do livro na visão do bibliotecário */
+.bib-card { cursor: default; }
+
+.bib-card--ativo {
+  border-color: var(--vinho) !important;
+  box-shadow: 0 0 0 2px rgba(140,43,43,0.18), var(--sombra-md) !important;
+}
+
+.bib-card-estoque {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(16,13,10,0.65);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  letter-spacing: 0.03em;
+  z-index: 3;
+}
+
+.btn-editar-card,
+.btn-excluir-card {
+  padding: 0.32rem 0.7rem;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.14s, background 0.14s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-editar-card {
+  background: var(--off-white);
+  border-color: var(--bege);
+  color: var(--marrom-escuro);
+}
+.btn-editar-card:hover { background: var(--bege); }
+
+.btn-excluir-card {
+  background: transparent;
+  border-color: #ef9a9a;
+  color: #c62828;
+}
+.btn-excluir-card:hover { background: #ffebee; }
+
+/* ── Drawer ─────────────────────────────────────────── */
+
+/* Backdrop visível apenas em mobile */
+.bib-drawer-backdrop {
+  display: none;
+}
+
+.bib-drawer {
+  width: 380px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 60px;               /* abaixo da navbar */
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  background: #fff;
+  border-left: 1px solid var(--bege);
+  box-shadow: -4px 0 24px rgba(16,13,10,0.07);
+  display: flex;
+  flex-direction: column;
+  animation: drawer-in 0.28s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes drawer-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.bib-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--off-white);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.bib-drawer-titulo {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--marrom-escuro);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.bib-drawer-fechar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--bege-medio);
+  padding: 0.3rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: color 0.14s, background 0.14s;
+  width: 30px;
+  height: 30px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.bib-drawer-fechar svg { width: 16px; height: 16px; }
+.bib-drawer-fechar:hover { color: var(--marrom-escuro); background: var(--off-white); }
+
+.bib-drawer-corpo {
+  padding: 1.4rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ── Responsividade do drawer ───────────────────────── */
+
+@media (max-width: 900px) {
+  /* Em tablet, o drawer vira overlay por cima */
+  .bib-drawer {
+    position: fixed;
+    right: 0;
+    top: 60px;
+    height: calc(100dvh - 60px);
+    z-index: 150;
+    width: min(380px, 92vw);
+    box-shadow: -8px 0 40px rgba(16,13,10,0.18);
+  }
+
+  .bib-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(16,13,10,0.4);
+    z-index: 149;
+    animation: dialogo-fade 0.2s ease;
+  }
+}
+
+@media (max-width: 768px) {
+  .bib-main { padding: clamp(0.85rem, 3vw, 1.5rem); }
+}
+
+/* ══════════════════════════════════════════════════════
+   Seletor de categorias múltiplas
+   ══════════════════════════════════════════════════════ */
+
+.multi-cat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.1rem 0;
+}
+
+.multi-cat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.75rem;
+  background: var(--off-white);
+  border: 1px solid var(--bege);
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.multi-cat-btn:hover {
+  background: var(--bege);
+  border-color: var(--bege-medio);
+  color: var(--marrom-escuro);
+}
+
+.multi-cat-btn--ativo {
+  background: rgba(140,43,43,0.09);
+  border-color: var(--vinho);
+  color: var(--vinho);
+  font-weight: 600;
+}
+
+.multi-cat-check {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+/* ── Filtro de categorias por pílulas (multi-select) ── */
+
+/* Campo que ocupa a linha inteira no grid de filtros */
+.livros-filtro-campo--full {
+  grid-column: 1 / -1;
+}
+
+.filtro-cat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.1rem 0;
+}
+
+.filtro-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  background: var(--fundo);
+  border: 1px solid var(--bege);
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.filtro-cat-pill:hover {
+  background: var(--off-white);
+  border-color: var(--bege-medio);
+  color: var(--marrom-escuro);
+}
+
+.filtro-cat-pill--ativa {
+  background: rgba(140,43,43,0.09);
+  border-color: var(--vinho);
+  color: var(--vinho);
+  font-weight: 600;
+}
+
+.filtro-cat-pill-x {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  margin-left: 0.1rem;
+}

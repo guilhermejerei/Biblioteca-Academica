@@ -1,0 +1,156 @@
+/* ══════════════════════════════════════════════════
+   Lista com busca — Autores e Categorias
+   ══════════════════════════════════════════════════ */
+
+/* Campo de busca */
+.lcb-busca-wrapper {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  padding: 0 0.75rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--sombra-xs);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.lcb-busca-wrapper:focus-within {
+  border-color: var(--foco-borda);
+  box-shadow: var(--foco-ring);
+}
+
+.lcb-busca-icone {
+  width: 16px;
+  height: 16px;
+  color: var(--marrom-apoio);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.lcb-busca-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.7rem 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--marrom-escuro);
+  background: transparent;
+}
+
+.lcb-busca-input::placeholder { color: var(--areia); }
+.lcb-busca-input::-webkit-search-cancel-button { display: none; }
+
+.lcb-busca-limpar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--bege-medio);
+  font-size: 0.8rem;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: color 0.14s;
+}
+.lcb-busca-limpar:hover { color: var(--marrom-escuro); }
+
+/* Lista de itens */
+.lcb-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--sombra-xs);
+}
+
+.lcb-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--off-white);
+  transition: background 0.12s;
+}
+
+.lcb-item:last-child { border-bottom: none; }
+.lcb-item:hover { background: var(--fundo); }
+
+.lcb-item--ativo {
+  background: rgba(140,43,43,0.04) !important;
+  border-left: 3px solid var(--vinho);
+  padding-left: calc(1rem - 3px);
+}
+
+.lcb-item-nome {
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  color: var(--marrom-escuro);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lcb-item-acoes {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ── Item expandido para usuários ─────────────────── */
+.lcb-item--usuario {
+  align-items: flex-start;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  gap: 0.75rem;
+}
+
+.lcb-usuario-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lcb-usuario-meta {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--marrom-apoio);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge de tipo */
+.lcb-tipo-badge {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lcb-tipo-ALUNO {
+  background: rgba(255,255,255,0.08);
+  color: var(--marrom-apoio);
+  border: 1px solid var(--bege-medio);
+}
+
+.lcb-tipo-BIBLIOTECARIO {
+  background: rgba(140,43,43,0.08);
+  color: var(--vinho);
+  border: 1px solid rgba(140,43,43,0.2);
+}

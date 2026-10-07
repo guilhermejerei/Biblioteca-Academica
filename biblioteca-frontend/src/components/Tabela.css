@@ -1,0 +1,78 @@
+/* ══════════════════════════════════════════════════
+   Tabela — listagens gerais
+   ══════════════════════════════════════════════════ */
+
+.tabela-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--bege);
+  background: #fff;
+  box-shadow: var(--sombra-xs);
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--sans);
+  font-size: 0.855rem;
+  min-width: 500px;
+}
+
+/* Cabeçalho */
+.tabela thead {
+  background-color: var(--off-white);
+  border-bottom: 1px solid var(--bege);
+}
+
+.tabela th {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.72rem;
+  color: var(--marrom-apoio);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Linha */
+.tabela td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--off-white);
+  color: var(--marrom-escuro);
+  vertical-align: middle;
+}
+
+.tabela tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabela tbody tr {
+  transition: background 0.12s;
+}
+
+.tabela tbody tr:hover {
+  background-color: var(--off-white);
+}
+
+/* Ações */
+.tabela-acoes {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+/* Vazio */
+.tabela-vazia {
+  color: var(--marrom-apoio);
+  text-align: center;
+  padding: 4rem 1rem;
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--bege);
+  opacity: 0.7;
+}

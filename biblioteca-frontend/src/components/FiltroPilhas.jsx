@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSom } from '../context/SomContext'
 import './FiltroPilhas.css'
 
 /**
@@ -39,6 +40,7 @@ export default function FiltroPilhas({
   const [pilhaAberta, setPilhaAberta] = useState(null)
   const [busca, setBusca] = useState('')
   const pilhaRefs = useRef({})
+  const { tocar } = useSom()
 
   const marcadas = useMemo(() => new Set(selecionados), [selecionados])
   const areasMarcadas = useMemo(() => new Set(areasSelecionadas), [areasSelecionadas])
@@ -87,10 +89,12 @@ export default function FiltroPilhas({
   }, [busca, arvore])
 
   function abrirPilha(id) {
+    tocar('toggle')
     setPilhaAberta(atual => (atual === id ? null : id))
   }
 
   function aoMarcar(id) {
+    tocar('click')
     onAlternarSubcategoria(id)
   }
 
@@ -163,6 +167,7 @@ export default function FiltroPilhas({
               type="button"
               className="painel-fechar"
               onClick={() => {
+                tocar('toggle')
                 const alvo = pilhaRefs.current[areaAberta.id]
                 setPilhaAberta(null)
                 alvo?.focus()
@@ -180,7 +185,7 @@ export default function FiltroPilhas({
             <button
               type="button"
               className={`sub-btn sub-btn--toda ${areasMarcadas.has(areaAberta.id) ? 'sub-btn--marcada' : ''}`}
-              onClick={() => onAlternarArea(areaAberta.id)}
+              onClick={() => { tocar('click'); onAlternarArea(areaAberta.id) }}
               aria-pressed={areasMarcadas.has(areaAberta.id)}
               disabled={areaAberta.totalLivros === 0 && !areasMarcadas.has(areaAberta.id)}
             >
@@ -327,7 +332,7 @@ export default function FiltroPilhas({
             })}
           </ul>
 
-          <button type="button" className="resumo-limpar" onClick={onLimpar}>
+          <button type="button" className="resumo-limpar" onClick={() => { tocar('click'); onLimpar() }}>
             Limpar filtros
           </button>
         </div>
@@ -341,7 +346,7 @@ export default function FiltroPilhas({
             <button
               type="button"
               className={`combinar-op ${modo === 'qualquer' ? 'combinar-op--ativa' : ''}`}
-              onClick={() => onTrocarModo('qualquer')}
+              onClick={() => { tocar('click'); onTrocarModo('qualquer') }}
               aria-pressed={modo === 'qualquer'}
             >
               Qualquer uma <span className="combinar-n">({totalQualquer})</span>
@@ -349,7 +354,7 @@ export default function FiltroPilhas({
             <button
               type="button"
               className={`combinar-op ${modo === 'todas' ? 'combinar-op--ativa' : ''}`}
-              onClick={() => onTrocarModo('todas')}
+              onClick={() => { tocar('click'); onTrocarModo('todas') }}
               aria-pressed={modo === 'todas'}
             >
               Todas elas <span className="combinar-n">({totalTodas})</span>
@@ -365,7 +370,7 @@ export default function FiltroPilhas({
             Nenhum livro tem <strong>todas</strong> as {totalMarcadas} categorias marcadas ao mesmo tempo.
             Com <em>Qualquer uma</em> aparecem {totalQualquer}.
           </p>
-          <button type="button" className="aviso-zero-btn" onClick={() => onTrocarModo('qualquer')}>
+          <button type="button" className="aviso-zero-btn" onClick={() => { tocar('click'); onTrocarModo('qualquer') }}>
             Ver os {totalQualquer} livros
           </button>
         </div>

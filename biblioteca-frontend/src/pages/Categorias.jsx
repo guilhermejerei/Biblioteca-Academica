@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useDialogo } from '../context/DialogoContext'
+import { useSom } from '../context/SomContext'
 import {
   arvoreCategorias,
   cadastrarCategoria,
@@ -44,6 +45,7 @@ const VAZIO = { nome: '', modo: 'area', cor: PALETA[0].hex, ordemExibicao: 1, ca
 
 export default function Categorias() {
   const { alertar, confirmar } = useDialogo()
+  const { tocar } = useSom()
 
   const [arvore, setArvore]       = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -73,6 +75,7 @@ export default function Categorias() {
   // ── Abrir o drawer ──────────────────────────────────────
 
   async function abrirNova(modo, area = null) {
+    tocar('toggle')
     setErro('')
     setEditando(null)
     setDrawer(modo)
@@ -87,6 +90,7 @@ export default function Categorias() {
   }
 
   function abrirEdicao(categoria) {
+    tocar('toggle')
     setErro('')
     setEditando(categoria)
     const ehArea = !categoria.categoriaPai
@@ -100,7 +104,7 @@ export default function Categorias() {
     })
   }
 
-  function fechar() { setDrawer(null); setEditando(null); setErro('') }
+  function fechar() { tocar('toggle'); setDrawer(null); setEditando(null); setErro('') }
 
   // ── Salvar ──────────────────────────────────────────────
 
@@ -131,12 +135,14 @@ export default function Categorias() {
     try {
       if (editando) await atualizarCategoria(editando.id, corpo)
       else await cadastrarCategoria(corpo)
+      tocar('success')
       fechar()
       await carregar()
       if (valores.modo === 'area' && !editando) {
         await alertar(`Área "${valores.nome.trim()}" criada. Ela já aparece no filtro do acervo.`, 'sucesso')
       }
     } catch (err) {
+      tocar('error')
       setErro(erroDaApi(err))
     } finally {
       setSalvando(false)
@@ -176,6 +182,7 @@ export default function Categorias() {
 
     try {
       await excluirCategoria(categoria.id)
+      tocar('delete')
       await carregar()
     } catch (err) {
       await alertar(erroDaApi(err), 'erro')

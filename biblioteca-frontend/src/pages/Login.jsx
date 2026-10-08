@@ -79,7 +79,7 @@ export default function Login() {
                 placeholder="••••••••" required autoComplete="current-password" />
             </div>
 
-            <button type="submit" className="auth-btn" disabled={carregando}>
+            <button type="submit" className="auth-btn" disabled={carregando} onClick={() => { if (!carregando) tocar('click') }}>
               {carregando ? 'Entrando…' : 'Entrar'}
             </button>
 

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import Formulario from '../components/Formulario'
 import Paginacao from '../components/Paginacao'
 import { useDialogo } from '../context/DialogoContext'
+import { useSom } from '../context/SomContext'
 import { listarAutores, cadastrarAutor, atualizarAutor, excluirAutor } from '../api/autores'
 import './Pagina.css'
 import './ListaComBusca.css'
@@ -12,6 +13,7 @@ const POR_PAGINA_PADRAO = 20
 
 export default function Autores() {
   const { alertar, confirmar } = useDialogo()
+  const { tocar } = useSom()
   const [autores, setAutores]             = useState([])
   const [busca, setBusca]                 = useState('')
   const [drawerAberto, setDrawerAberto]   = useState(false)
@@ -31,17 +33,19 @@ export default function Autores() {
 
   useEffect(() => { carregar() }, [])
 
-  function abrirNovo()  { setEditando(null); setValores({ nome: '' }); setErro(''); setDrawerAberto(true) }
-  function abrirEdicao(a) { setEditando(a); setValores({ nome: a.nome }); setErro(''); setDrawerAberto(true) }
-  function fechar()     { setDrawerAberto(false); setErro('') }
+  function abrirNovo()  { tocar('toggle'); setEditando(null); setValores({ nome: '' }); setErro(''); setDrawerAberto(true) }
+  function abrirEdicao(a) { tocar('toggle'); setEditando(a); setValores({ nome: a.nome }); setErro(''); setDrawerAberto(true) }
+  function fechar()     { tocar('toggle'); setDrawerAberto(false); setErro('') }
 
   async function handleSubmit(e) {
     e.preventDefault(); setErro('')
     try {
       if (editando) await atualizarAutor(editando.id, valores)
       else await cadastrarAutor(valores)
+      tocar('success')
       fechar(); carregar()
     } catch (err) {
+      tocar('error')
       setErro(err.response?.data?.erro || err.message || 'Erro ao salvar.')
     }
   }
@@ -49,7 +53,7 @@ export default function Autores() {
   async function handleExcluir(id) {
     const ok = await confirmar('Excluir este autor?', 'Excluir autor')
     if (!ok) return
-    try { await excluirAutor(id); carregar() }
+    try { await excluirAutor(id); tocar('delete'); carregar() }
     catch (err) { await alertar(err.response?.data?.erro || 'Não foi possível excluir.', 'erro') }
   }
 

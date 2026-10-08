@@ -14,6 +14,11 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# ── Gerado em runtime ─────────────────────────────────────────────────
+# Capas baixadas das APIs externas. São 38 arquivos e 1,4 MB que o sistema
+# reconstrói sozinho; versionar só polui o histórico.
+uploads/
+
 # ── Node / React ──────────────────────────────────────────────────────
 node_modules/
 dist/

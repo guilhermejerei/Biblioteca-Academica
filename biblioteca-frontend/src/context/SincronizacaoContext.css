@@ -6,7 +6,7 @@
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  z-index: 350; /* abaixo do bottom-bar-mais-menu (300) não, acima dos overlays normais */
+  z-index: 350;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -18,7 +18,11 @@
   border: 1px solid transparent;
   animation: toast-in 0.3s cubic-bezier(0.22,1,0.36,1) both;
   font-family: var(--sans);
+  cursor: grab;
+  user-select: none;
 }
+
+.sinc-toast:active { cursor: grabbing; }
 
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(12px) scale(0.97); }

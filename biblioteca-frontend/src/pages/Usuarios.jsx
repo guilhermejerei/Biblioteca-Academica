@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import Formulario from '../components/Formulario'
 import { useDialogo } from '../context/DialogoContext'
+import { useSom } from '../context/SomContext'
 import { listarUsuarios, atualizarUsuario, excluirUsuario } from '../api/usuarios'
 import './Pagina.css'
 import './ListaComBusca.css'
@@ -16,6 +17,7 @@ const TIPO_LABEL = { ALUNO: 'Aluno', BIBLIOTECARIO: 'Bibliotecário' }
 
 export default function Usuarios() {
   const { alertar, confirmar } = useDialogo()
+  const { tocar } = useSom()
   const [usuarios, setUsuarios]         = useState([])
   const [busca, setBusca]               = useState('')
   const [drawerAberto, setDrawerAberto] = useState(false)
@@ -34,20 +36,23 @@ export default function Usuarios() {
   useEffect(() => { carregar() }, [])
 
   function abrirEdicao(u) {
+    tocar('toggle')
     setEditando(u)
     setValores({ nome: u.nome, cpf: u.cpf, email: u.email, telefone: u.telefone ?? '' })
     setErro('')
     setDrawerAberto(true)
   }
 
-  function fechar() { setDrawerAberto(false); setErro('') }
+  function fechar() { tocar('toggle'); setDrawerAberto(false); setErro('') }
 
   async function handleSubmit(e) {
     e.preventDefault(); setErro('')
     try {
       await atualizarUsuario(editando.id, valores)
+      tocar('success')
       fechar(); carregar()
     } catch (err) {
+      tocar('error')
       setErro(err.response?.data?.erro || err.message || 'Erro ao atualizar usuário.')
     }
   }
@@ -55,7 +60,7 @@ export default function Usuarios() {
   async function handleExcluir(id) {
     const ok = await confirmar('Excluir este usuário?', 'Excluir usuário')
     if (!ok) return
-    try { await excluirUsuario(id); carregar() }
+    try { await excluirUsuario(id); tocar('delete'); carregar() }
     catch (err) { await alertar(err.response?.data?.erro || 'Não foi possível excluir.', 'erro') }
   }
 

@@ -32,8 +32,15 @@ class MigracaoV3Test {
     private static final String SENHA = System.getenv().getOrDefault("DB_PASSWORD", "");
     private static final String PARAMETROS =
             "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    /**
+     * A migração saiu de src/main/resources: não há Flyway, elas são aplicadas
+     * à mão, e ficar dentro do código só as enterrava no .jar sem ganho nenhum.
+     * Agora ficam com as demais em docs/banco/migracoes/.
+     *
+     * O caminho é relativo à raiz do backend, que é onde o Maven roda.
+     */
     private static final String ARQUIVO_V3 =
-            "src/main/resources/migracoes/V3__categorias_hierarquicas_e_multicategoria.sql";
+            "../docs/banco/migracoes/V3__categorias_hierarquicas_e_multicategoria.sql";
 
     /** O recorte de dados de exemplo cria 3 livros, 2 deles com categoria. */
     private static final int EXEMPLO_LIVROS_COM_CATEGORIA = 2;

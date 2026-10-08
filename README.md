@@ -21,20 +21,27 @@ Sistema completo de gerenciamento de acervo e empréstimos para biblioteca unive
 ## Estrutura do Repositório
 
 ```
-Projeto web/
+Biblioteca/
 ├── biblioteca-backend/     ← API REST (Spring Boot + Maven)
 ├── biblioteca-frontend/    ← Interface web (React + Vite)
-├── docs/
-│   ├── CAPAS.md            ← Arquitetura do sistema de capas
-│   ├── REGRAS_E_BASE_LEGAL.md
-│   └── tecnico/
-│       ├── ARQUITETURA.md  ← Visão geral do sistema
-│       ├── BACKEND.md      ← Estrutura de pacotes, regras e endpoints
-│       ├── FRONTEND.md     ← Componentes, design system e roteamento
-│       └── CAPAS.md        ← Implementação interna do sistema de capas
-├── dados.sql               ← Script SQL com dados de exemplo
+├── docs/                   ← Toda a documentação, organizada por assunto
+│   ├── README.md           ← Índice com o resumo de cada documento
+│   ├── arquitetura/        ← Como o sistema é feito e por quê
+│   │   ├── ARQUITETURA.md
+│   │   ├── BACKEND.md
+│   │   ├── FRONTEND.md
+│   │   ├── capas.md             (fluxo e princípios do sistema de capas)
+│   │   └── capas-implementacao.md (as classes por baixo)
+│   ├── banco/              ← Tudo que toca o MySQL
+│   │   ├── migracoes/      ← V1 a V5, aplicadas à mão (sem Flyway)
+│   │   ├── dados/          ← Dados iniciais e o mapa de categorias
+│   │   └── backups/        ← Dumps do banco, por data
+│   ├── regras/             ← Regras de negócio e base legal
+│   └── interface/          ← Análises e relatórios de tela
 └── README.md               ← Este arquivo
 ```
+
+Nada de migrate fica dentro de `src/`: o código tem só o que compila e roda.
 
 ---
 
@@ -199,14 +206,14 @@ Os testes cobrem os services principais (empréstimos, livros, capas) e o contro
 
 ## Documentação Técnica
 
-A pasta `docs/tecnico/` contém documentação detalhada para cada parte do sistema:
+A pasta `docs/arquitetura/` contém documentação detalhada para cada parte do sistema:
 
 | Arquivo | Conteúdo |
 |---|---|
-| [`ARQUITETURA.md`](docs/tecnico/ARQUITETURA.md) | Visão geral, stack, fluxo de requisição e autenticação |
-| [`BACKEND.md`](docs/tecnico/BACKEND.md) | Estrutura de pacotes, regras de negócio, endpoints completos |
-| [`FRONTEND.md`](docs/tecnico/FRONTEND.md) | Componentes, sistema de design, roteamento |
-| [`CAPAS.md`](docs/tecnico/CAPAS.md) | Sistema de busca, validação e armazenamento de capas |
+| [`ARQUITETURA.md`](docs/arquitetura/ARQUITETURA.md) | Visão geral, stack, fluxo de requisição e autenticação |
+| [`BACKEND.md`](docs/arquitetura/BACKEND.md) | Estrutura de pacotes, regras de negócio, endpoints completos |
+| [`FRONTEND.md`](docs/arquitetura/FRONTEND.md) | Componentes, sistema de design, roteamento |
+| [`CAPAS.md`](docs/arquitetura/capas-implementacao.md) | Sistema de busca, validação e armazenamento de capas |
 
 ---
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { register } from '../api/auth'
+import { useSom } from '../context/SomContext'
 import IconeBiblioteca from '../assets/icones/IconeBiblioteca'
 import './Auth.css'
 
@@ -11,6 +12,7 @@ const VALORES_INICIAIS = {
 
 export default function Cadastro() {
   const navigate = useNavigate()
+  const { tocar } = useSom()
   const [valores, setValores]       = useState(VALORES_INICIAIS)
   const [erro, setErro]             = useState('')
   const [sucesso, setSucesso]       = useState('')
@@ -26,6 +28,7 @@ export default function Cadastro() {
     setSucesso('')
 
     if (valores.senha !== valores.confirmarSenha) {
+      tocar('error')
       setErro('As senhas não coincidem.')
       return
     }
@@ -34,9 +37,11 @@ export default function Cadastro() {
     try {
       const { confirmarSenha, ...payload } = valores
       await register(payload)
+      tocar('success')
       setSucesso('Conta criada! Redirecionando para o login…')
       setTimeout(() => navigate('/login'), 2000)
     } catch (err) {
+      tocar('error')
       setErro(err.response?.data?.erro || 'Não foi possível criar a conta. Tente novamente.')
     } finally {
       setCarregando(false)
@@ -155,7 +160,7 @@ export default function Cadastro() {
               </div>
             </div>
 
-            <button type="submit" className="auth-btn" disabled={carregando}>
+            <button type="submit" className="auth-btn" disabled={carregando} onClick={() => { if (!carregando) tocar('click') }}>
               {carregando ? 'Criando conta…' : 'Criar conta'}
             </button>
 

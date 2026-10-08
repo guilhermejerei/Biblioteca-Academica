@@ -12,7 +12,50 @@ export function SincronizacaoProvider({ children }) {
   const timerRef = useRef(null)
   const { tocar } = useSom()
 
-  // Dispara a sincronização — pode ser chamado de qualquer página
+  // ── Posição do toast (drag) ────────────────────────────
+  // null = posição padrão CSS (bottom: 1.5rem, right: 1.5rem)
+  // { x, y } = posição fixada pelo usuário após arrastar
+  const [pos, setPos] = useState(null)
+  const dragRef = useRef({ arrastando: false, origemX: 0, origemY: 0, posX: 0, posY: 0 })
+  const toastRef = useRef(null)
+
+  function onMouseDown(e) {
+    // Ignora cliques em botões dentro do toast
+    if (e.target.closest('button')) return
+    e.preventDefault()
+    const rect = toastRef.current?.getBoundingClientRect()
+    if (!rect) return
+    dragRef.current = {
+      arrastando: true,
+      origemX: e.clientX,
+      origemY: e.clientY,
+      posX: rect.left,
+      posY: rect.top,
+    }
+  }
+
+  useEffect(() => {
+    function onMouseMove(e) {
+      if (!dragRef.current.arrastando) return
+      const dx = e.clientX - dragRef.current.origemX
+      const dy = e.clientY - dragRef.current.origemY
+      setPos({
+        x: dragRef.current.posX + dx,
+        y: dragRef.current.posY + dy,
+      })
+    }
+    function onMouseUp() {
+      dragRef.current.arrastando = false
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [])
+
+  // ── Sincronização ──────────────────────────────────────
   const sincronizar = useCallback(async () => {
     if (status === 'rodando') return
     setStatus('rodando')
@@ -22,7 +65,6 @@ export function SincronizacaoProvider({ children }) {
       const rel = await sincronizarCapas()
       setResultado(rel)
       setStatus('concluido')
-      // Some automaticamente após 6 segundos
       timerRef.current = setTimeout(() => setStatus('idle'), 6000)
     } catch (err) {
       setMensagemErro(err.response?.data?.erro || 'Erro ao sincronizar capas.')
@@ -34,9 +76,9 @@ export function SincronizacaoProvider({ children }) {
   function fecharToast() {
     clearTimeout(timerRef.current)
     setStatus('idle')
+    setPos(null) // reseta posição ao fechar
   }
 
-  // Limpa timer ao desmontar
   useEffect(() => () => clearTimeout(timerRef.current), [])
 
   // Toca sons ao mudar status
@@ -47,13 +89,25 @@ export function SincronizacaoProvider({ children }) {
 
   const visivel = status !== 'idle'
 
+  // Estilo inline de posição quando arrastado
+  const estiloPos = pos
+    ? { left: pos.x, top: pos.y, bottom: 'auto', right: 'auto' }
+    : {}
+
   return (
     <SincronizacaoContext.Provider value={{ sincronizar, status }}>
       {children}
 
-      {/* Toast flutuante — renderizado aqui, aparece em qualquer rota */}
       {visivel && (
-        <div className={`sinc-toast sinc-toast--${status}`} role="status" aria-live="polite">
+        <div
+          ref={toastRef}
+          className={`sinc-toast sinc-toast--${status}`}
+          role="status"
+          aria-live="polite"
+          style={estiloPos}
+          onMouseDown={onMouseDown}
+          title="Arraste para mover"
+        >
           <div className="sinc-toast-icone">
             {status === 'rodando' && <span className="sinc-spinner" />}
             {status === 'concluido' && (

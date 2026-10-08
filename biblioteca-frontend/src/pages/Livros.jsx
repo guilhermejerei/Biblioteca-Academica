@@ -548,6 +548,7 @@ export default function Livros() {
   }
 
   async function handleSincronizarCapas() {
+    tocar('toggle')
     await sincronizar()
     await carregar()
   }

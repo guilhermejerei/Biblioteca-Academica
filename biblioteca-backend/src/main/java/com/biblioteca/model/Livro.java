@@ -31,13 +31,23 @@ public class Livro {
     @JoinColumn(name = "autor_id", nullable = false)
     private Autor autor;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "livros_categorias",
-        joinColumns = @JoinColumn(name = "livro_id"),
-        inverseJoinColumns = @JoinColumn(name = "categoria_id")
-    )
-    private java.util.Set<Categoria> categorias = new java.util.LinkedHashSet<>();
+    /**
+     * As 1 a 4 categorias do livro.
+     *
+     * EAGER por causa do uso no JSON e no filtro do acervo — é o mesmo
+     * comportamento que o ManyToMany antigo tinha, para não introduzir
+     * LazyInitializationException na serialização nem N+1 na listagem.
+     */
+    @OneToMany(mappedBy = "livro", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<LivroCategoria> livroCategorias = new java.util.ArrayList<>();
+
+    /**
+     * Nome da categoria como estava antes da migração para duas categorias.
+     * Só de leitura — nenhuma regra de negócio olha para cá. Existe para dar
+     * um caminho de volta se a classificação for revista.
+     */
+    @Column(name = "categoria_legada")
+    private String categoriaLegada;
 
     @Column(name = "capa_arquivo")
     private String capaArquivo;
@@ -81,8 +91,40 @@ public class Livro {
     public Autor getAutor() { return autor; }
     public void setAutor(Autor autor) { this.autor = autor; }
 
-    public java.util.Set<Categoria> getCategorias() { return categorias; }
-    public void setCategorias(java.util.Set<Categoria> categorias) { this.categorias = categorias; }
+    public java.util.List<LivroCategoria> getLivroCategorias() { return livroCategorias; }
+    public void setLivroCategorias(java.util.List<LivroCategoria> livroCategorias) {
+        this.livroCategorias = livroCategorias;
+    }
+
+    public String getCategoriaLegada() { return categoriaLegada; }
+    public void setCategoriaLegada(String categoriaLegada) { this.categoriaLegada = categoriaLegada; }
+
+    /**
+     * Atalho para o JSON: só as categorias, sem o wrapper da ligação.
+     * Mantém o formato que o frontend já consome ("categorias": [{id, nome}]).
+     */
+    @com.fasterxml.jackson.annotation.JsonProperty("categorias")
+    public java.util.List<Categoria> getCategorias() {
+        return livroCategorias.stream()
+                .map(LivroCategoria::getCategoria)
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * A categoria principal do livro, ou null se alguma inconsistência dejar o
+     * livro sem nenhuma principal. É dela que sai a cor da lombada e a
+     * etiqueta da capa.
+     */
+    @JsonIgnore
+    public Categoria getCategoriaPrincipal() {
+        return livroCategorias.stream()
+                .filter(LivroCategoria::isPrincipal)
+                .map(LivroCategoria::getCategoria)
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
 
     public List<Emprestimo> getEmprestimos() { return emprestimos; }
     public void setEmprestimos(List<Emprestimo> emprestimos) { this.emprestimos = emprestimos; }
@@ -112,7 +154,8 @@ public class Livro {
     }
 
     /**
-     * URL para visualização interna da imagem mesmo em status REVISAR.
+     * URL interna da capa, útil enquanto ela está em REVISAR (ainda não
+     * publicada, mas o bibliotecário precisa ver para aprovar).
      */
     @com.fasterxml.jackson.annotation.JsonProperty("urlCapaInterna")
     public String getUrlCapaInterna() {
@@ -121,4 +164,11 @@ public class Livro {
         }
         return null;
     }
+
+    /**
+     * Categoria principal do livro, com a cor da sua área. É daqui que a
+     * estante tira a cor da lombada e a etiqueta da capa.
+     */
+    @com.fasterxml.jackson.annotation.JsonProperty("categoriaPrincipal")
+    public Categoria getCategoriaPrincipalSerializada() { return getCategoriaPrincipal(); }
 }

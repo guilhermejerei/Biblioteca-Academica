@@ -1,0 +1,120 @@
+/* ══════════════════════════════════════════════════
+   Paginação — extraída de Livros.css para ser usada
+   por Livros, Autores e Categorias.
+
+   Os nomes de classe foram preservados, então as regras
+   que ainda vivem em Livros.css continuam válidas.
+   ══════════════════════════════════════════════════ */
+
+.paginacao-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bege);
+}
+
+/* Sem seletor de tamanho, a área centraliza só os botões */
+.paginacao-area:not(:has(.paginacao-por-pagina)) {
+  justify-content: center;
+}
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.pag-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bege);
+  border-radius: 8px;
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s, box-shadow 0.14s;
+}
+
+.pag-btn:hover:not(:disabled):not(.ativo) {
+  background: var(--off-white);
+  border-color: var(--bege-medio);
+  color: var(--marrom-escuro);
+}
+
+.pag-btn.ativo {
+  background: linear-gradient(135deg, #c35a2b 0%, #8c2b2b 100%);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(140,43,43,0.32);
+  cursor: default;
+}
+
+.pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.pag-nav { padding: 0 0.55rem; }
+.pag-nav svg { width: 15px; height: 15px; }
+
+.pag-reticencias {
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  color: var(--bege-medio);
+  padding: 0 0.2rem;
+  user-select: none;
+  line-height: 36px;
+}
+
+/* ── Seletor de itens por página ─────────────────── */
+.paginacao-por-pagina {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--marrom-apoio);
+}
+
+.paginacao-por-pagina select {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--marrom-escuro);
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 8px;
+  padding: 0.35rem 1.6rem 0.35rem 0.6rem;
+  min-height: 36px;
+  cursor: pointer;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+
+.paginacao-por-pagina select:hover { border-color: var(--bege-medio); }
+.paginacao-por-pagina select:focus-visible { border-color: var(--foco-borda); box-shadow: var(--foco-ring); }
+
+@media (max-width: 680px) {
+  /* Empilha: seletor em cima, botões embaixo e centrados */
+  .paginacao-area {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .paginacao-area:not(:has(.paginacao-por-pagina)) { justify-content: center; }
+}
+
+@media (max-width: 400px) {
+  .pag-btn { min-width: 30px; height: 30px; font-size: 0.75rem; }
+  .pag-reticencias { line-height: 30px; }
+  .paginacao-por-pagina select { min-height: 30px; }
+}

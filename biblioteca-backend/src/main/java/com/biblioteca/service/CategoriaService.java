@@ -14,8 +14,15 @@ public class CategoriaService {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
+    /**
+     * Só as categorias em uso: as áreas e as subcategorias.
+     *
+     * As 129 categorias que sobraram da migração ficam de fora de propósito.
+     * Elas não apontam para livro nenhum e só servem ao rollback, e mostrá-las
+     * na tela de administração enche a lista de linhas que não fazem sentido.
+     */
     public List<Categoria> listarTodos() {
-        return categoriaRepository.findAll();
+        return categoriaRepository.findAllReais();
     }
 
     public Optional<Categoria> buscarPorId(Long id) {

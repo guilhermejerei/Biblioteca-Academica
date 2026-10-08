@@ -1,0 +1,600 @@
+/* ══════════════════════════════════════════════════
+   Filtro em pilhas — Acervo
+   Paleta e tipografia vêm das variáveis de index.css.
+   ══════════════════════════════════════════════════ */
+
+.pilhas {
+  --gap-pilha: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Fileira de pilhas ───────────────────────────── */
+/* Grid, não rolagem lateral. Com dez pilhas de largura fixa, a fileira estourava
+   a página em ~1360px e a décima pilha ficava cortada — e o usuário nunca
+   descobriria que ela existe. O auto-fit encolhe as pilhas até caberem todas
+   e, se ainda assim não couber, quebra em duas fileiras em vez de esconder. */
+.pilhas-fileira {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+
+.pilha-slot {
+  min-width: 0;      /* sem isto o nome longo impede a coluna de encolher */
+}
+
+.pilha {
+  --cor-area: var(--marrom-apoio);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 44px;              /* alvo de toque mínimo */
+  padding: 0.7rem 0.4rem 0.6rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  /* A cor da área entra pela borda e por um fundo bem discreto. A pilha
+     marcada ganha também o ✓ e um texto — cor nunca é o único indício. */
+  border-bottom: 3px solid var(--cor-area);
+}
+
+.pilha:hover { transform: translateY(-2px); box-shadow: var(--sombra-sm); }
+
+.pilha--aberta {
+  border-color: var(--vinho);
+  box-shadow: var(--sombra-md), 0 0 0 1px var(--vinho) inset;
+}
+
+.pilha--marcada {
+  background: color-mix(in srgb, var(--cor-area) 8%, #fff);
+  box-shadow: 0 0 0 2px var(--cor-area) inset, var(--sombra-sm);
+}
+
+.pilha-desenho { display: block; }
+
+.pilha-texto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  width: 100%;
+}
+
+.pilha-nome {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--marrom-escuro);
+  text-align: center;
+  line-height: 1.2;
+  /* Duas linhas e o resto some; o nome inteiro está no aria-label do botão */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 1.75em;
+}
+
+.pilha-total {
+  font-size: 0.68rem;
+  color: var(--marrom-apoio);
+  white-space: nowrap;
+}
+
+/* O selo com o número de subcategorias marcadas */
+.pilha-selo {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.35rem;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vinho);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 999px;
+  border: 2px solid var(--fundo);
+}
+
+/* ── Painel da pilha ──────────────────────────────── */
+.painel-pilha {
+  --cor-area: var(--marrom-apoio);
+  margin-top: 0.75rem;
+  padding: 1rem 1.1rem 1.15rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-top: 3px solid var(--cor-area);
+  border-radius: 12px;
+  box-shadow: var(--sombra-md);
+  animation: painel-entra 0.18s ease-out;
+}
+
+@keyframes painel-entra {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.painel-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.painel-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--marrom-escuro);
+}
+
+.painel-ponto {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: var(--cor-area);
+  flex-shrink: 0;
+}
+
+.painel-fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.painel-fechar:hover { background: var(--off-white); color: var(--marrom-escuro); }
+.painel-fechar svg { width: 18px; height: 18px; }
+
+.painel-grade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ── Botão de subcategoria ────────────────────────── */
+.sub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;              /* alvo de toque */
+  padding: 0.5rem 0.75rem;
+  background: var(--fundo);
+  border: 1px solid var(--bege);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--marrom-escuro);
+  transition: background 0.14s, border-color 0.14s, color 0.14s, opacity 0.14s;
+}
+
+.sub-btn:hover:not(:disabled):not(.sub-btn--marcada) {
+  background: var(--off-white);
+  border-color: var(--bege-medio);
+}
+
+.sub-btn--marcada {
+  background: var(--vinho);
+  border-color: var(--vinho);
+  color: #fff;
+}
+
+.sub-btn--toda {
+  background: #fff;
+  border-style: dashed;
+  font-weight: 600;
+}
+.sub-btn--toda.sub-btn--marcada { border-style: solid; }
+
+.sub-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.sub-nome { white-space: nowrap; }
+
+.sub-contagem {
+  min-width: 1.5rem;
+  padding: 0.05rem 0.35rem;
+  text-align: center;
+  background: rgba(46, 33, 27, 0.07);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+}
+
+.sub-btn--marcada .sub-contagem {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+/* O ✓ é o indício de seleção que não depende da cor */
+.sub-ok { font-weight: 700; font-size: 0.8rem; }
+
+/* ── Buscar categoria ──────────────────────────────── */
+.busca-cat { margin-top: 1rem; position: relative; }
+
+.busca-cat-rotulo {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  margin-bottom: 0.3rem;
+}
+
+.busca-cat-campo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  padding: 0 0.7rem;
+  box-shadow: var(--sombra-xs);
+  transition: border-color 0.16s, box-shadow 0.16s;
+}
+
+.busca-cat-campo:focus-within {
+  border-color: var(--foco-borda);
+  box-shadow: var(--foco-ring);
+}
+
+.busca-cat-campo svg { width: 15px; height: 15px; color: var(--marrom-apoio); opacity: 0.55; flex-shrink: 0; }
+
+.busca-cat-campo input {
+  flex: 1;
+  min-height: 44px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--marrom-escuro);
+}
+.busca-cat-campo input::placeholder { color: var(--areia); }
+.busca-cat-campo input::-webkit-search-cancel-button { display: none; }
+
+.busca-cat-limpar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--bege-medio);
+  font-size: 0.8rem;
+  padding: 0.3rem;
+  border-radius: 4px;
+  min-width: 32px;
+  min-height: 32px;
+}
+.busca-cat-limpar:hover { color: var(--marrom-escuro); }
+
+.busca-cat-lista {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0.25rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  box-shadow: var(--sombra-md);
+  max-height: 17rem;
+  overflow-y: auto;
+}
+
+.busca-cat-vazia {
+  padding: 0.6rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--marrom-apoio);
+}
+
+.busca-cat-item {
+  --cor-area: var(--marrom-apoio);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.4rem 0.6rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--marrom-escuro);
+  text-align: left;
+  transition: background 0.12s;
+}
+.busca-cat-item:hover { background: var(--fundo); }
+.busca-cat-item--marcada { background: color-mix(in srgb, var(--cor-area) 10%, #fff); }
+
+/* A "pilhinha" mostra a qual pilha a categoria pertence */
+.busca-cat-pilhao {
+  width: 0.65rem;
+  height: 1.05rem;
+  border-radius: 2px;
+  background: var(--cor-area);
+  flex-shrink: 0;
+}
+
+.busca-cat-nome { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.busca-cat-area {
+  font-size: 0.7rem;
+  color: var(--marrom-apoio);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.busca-cat-n {
+  min-width: 1.4rem;
+  text-align: right;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+}
+
+/* ── Resumo e etiquetas ───────────────────────────── */
+.pilhas-resumo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--off-white);
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+}
+
+.resumo-contagem {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--marrom-escuro);
+}
+
+.resumo-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+
+.etiqueta {
+  --cor-area: var(--marrom-apoio);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.3rem 0.25rem 0.6rem;
+  background: #fff;
+  border: 1px solid var(--cor-area);
+  border-radius: 999px;
+  font-size: 0.76rem;
+  color: var(--marrom-escuro);
+}
+
+.etiqueta-ponto {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--cor-area);
+  flex-shrink: 0;
+}
+
+.etiqueta-area { color: var(--marrom-apoio); font-size: 0.7rem; }
+
+.etiqueta button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: background 0.12s, color 0.12s;
+}
+.etiqueta button:hover { background: var(--vinho); color: #fff; }
+
+.resumo-limpar {
+  background: none;
+  border: none;
+  color: var(--vinho);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+}
+.resumo-limpar:hover { background: rgba(140, 43, 43, 0.07); }
+
+/* ── Combinar ─────────────────────────────────────── */
+.combinar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.combinar-rotulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.combinar-grade {
+  display: inline-flex;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.combinar-op {
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--marrom-apoio);
+  transition: background 0.14s, color 0.14s;
+}
+
+.combinar-op + .combinar-op { border-left: 1px solid var(--bege); }
+.combinar-op:hover:not(.combinar-op--ativa) { background: var(--off-white); color: var(--marrom-escuro); }
+
+.combinar-op--ativa {
+  background: var(--vinho);
+  color: #fff;
+  font-weight: 600;
+}
+
+.combinar-n { opacity: 0.85; font-variant-numeric: tabular-nums; }
+
+/* ── "Todas elas" sem resultado ───────────────────── */
+.aviso-zero {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding: 0.8rem 0.95rem;
+  background: rgba(195, 90, 43, 0.07);
+  border: 1px solid rgba(195, 90, 43, 0.3);
+  border-radius: 10px;
+}
+
+.aviso-zero-texto {
+  flex: 1;
+  min-width: 14rem;
+  font-size: 0.83rem;
+  color: var(--marrom-escuro);
+  line-height: 1.45;
+}
+
+.aviso-zero-btn {
+  min-height: 44px;
+  padding: 0.45rem 0.9rem;
+  background: var(--laranja);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s, transform 0.14s;
+}
+.aviso-zero-btn:hover { background: var(--vinho); transform: translateY(-1px); }
+
+/* ── Só para leitor de tela ───────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Responsivo ───────────────────────────────────── */
+@media (max-width: 680px) {
+  /* Duas colunas fixas: com dez pilhas em auto-fit num celular, cada uma
+     ficaria com 3rem de largura e o nome viraria três letras por linha. */
+  .pilhas-fileira {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.55rem;
+  }
+
+  /* No celular o painel sobe da base da tela, como uma folha */
+  .painel-pilha {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    margin: 0;
+    max-height: 68vh;
+    overflow-y: auto;
+    border-radius: 16px 16px 0 0;
+    border-top: 3px solid var(--cor-area);
+    padding-bottom: max(1.15rem, env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 32px rgba(46, 33, 27, 0.22);
+    animation: folha-sobe 0.2s ease-out;
+  }
+
+  @keyframes folha-sobe {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  .painel-grade { gap: 0.4rem; }
+  .sub-btn { flex: 1 1 auto; justify-content: center; }
+  .sub-nome { white-space: normal; }
+
+  .busca-cat-area { display: none; }
+}
+
+/* Com movimento reduzido, tudo vira troca simples com fade. O painel do
+   celular deixa de deslizar e aparece no lugar. */
+@media (prefers-reduced-motion: reduce) {
+  .painel-pilha,
+  .painel-pilha { animation: fade-simples 0.12s ease-out; }
+
+  @keyframes fade-simples {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .pilha,
+  .sub-btn,
+  .combinar-op,
+  .aviso-zero-btn {
+    transition: opacity 0.12s ease;
+  }
+
+  .pilha:hover,
+  .aviso-zero-btn:hover { transform: none; }
+}

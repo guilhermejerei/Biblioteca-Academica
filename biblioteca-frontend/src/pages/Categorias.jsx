@@ -1,11 +1,14 @@
 import { useEffect, useState, useMemo } from 'react'
 import Formulario from '../components/Formulario'
+import Paginacao from '../components/Paginacao'
 import { useDialogo } from '../context/DialogoContext'
 import { listarCategorias, cadastrarCategoria, atualizarCategoria, excluirCategoria } from '../api/categorias'
 import './Pagina.css'
 import './ListaComBusca.css'
 
 const CAMPOS = [{ name: 'nome', label: 'Nome', required: true, placeholder: 'Nome da categoria' }]
+
+const POR_PAGINA_PADRAO = 20
 
 export default function Categorias() {
   const { alertar, confirmar } = useDialogo()
@@ -17,6 +20,8 @@ export default function Categorias() {
   const [erro, setErro]                   = useState('')
   const [erroGeral, setErroGeral]         = useState('')
   const [carregando, setCarregando]       = useState(true)
+  const [pagina, setPagina]               = useState(1)
+  const [porPagina, setPorPagina]         = useState(POR_PAGINA_PADRAO)
 
   async function carregar() {
     try { setCategorias(await listarCategorias()) }
@@ -54,6 +59,19 @@ export default function Categorias() {
     return categorias.filter(c => c.nome.toLowerCase().includes(q))
   }, [categorias, busca])
 
+  // ── Paginação ────────────────────────────────────────
+  // O acervo tem mais de uma centena de categorias, o que fazia a
+  // lista virar um scroll longo. A lista inteira já vem em memória
+  // (GET /api/categorias não pagina), então o recorte é feito aqui.
+  useEffect(() => { setPagina(1) }, [busca, porPagina])
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / porPagina))
+  const paginaSegura = Math.min(pagina, totalPaginas)
+  const paginaAtual = useMemo(() => {
+    const inicio = (paginaSegura - 1) * porPagina
+    return filtrados.slice(inicio, inicio + porPagina)
+  }, [filtrados, paginaSegura, porPagina])
+
   if (carregando) return (
     <div className="pagina"><div className="dashboard-carregando"><div className="spinner" /></div></div>
   )
@@ -64,7 +82,10 @@ export default function Categorias() {
         <div className="pagina-header">
           <div>
             <h1 className="pagina-titulo">Categorias</h1>
-            <p className="pagina-subtitulo">{filtrados.length} de {categorias.length} categoria(s)</p>
+            <p className="pagina-subtitulo" aria-live="polite">
+              {filtrados.length} de {categorias.length} categoria(s)
+              {totalPaginas > 1 && ` · página ${paginaSegura} de ${totalPaginas}`}
+            </p>
           </div>
           <button className="btn-primario" onClick={abrirNovo}>+ Nova Categoria</button>
         </div>
@@ -91,17 +112,28 @@ export default function Categorias() {
         {filtrados.length === 0 ? (
           <p className="tabela-vazia">Nenhuma categoria encontrada.</p>
         ) : (
-          <ul className="lcb-lista">
-            {filtrados.map(c => (
-              <li key={c.id} className={`lcb-item ${editando?.id === c.id && drawerAberto ? 'lcb-item--ativo' : ''}`}>
-                <span className="lcb-item-nome">{c.nome}</span>
-                <div className="lcb-item-acoes">
-                  <button className="btn-editar" onClick={() => abrirEdicao(c)}>Editar</button>
-                  <button className="btn-excluir" onClick={() => handleExcluir(c.id)}>Excluir</button>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="lcb-lista">
+              {paginaAtual.map(c => (
+                <li key={c.id} className={`lcb-item ${editando?.id === c.id && drawerAberto ? 'lcb-item--ativo' : ''}`}>
+                  <span className="lcb-item-nome">{c.nome}</span>
+                  <div className="lcb-item-acoes">
+                    <button className="btn-editar" onClick={() => abrirEdicao(c)}>Editar</button>
+                    <button className="btn-excluir" onClick={() => handleExcluir(c.id)}>Excluir</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <Paginacao
+              pagina={paginaSegura}
+              totalPaginas={totalPaginas}
+              onChange={setPagina}
+              porPagina={porPagina}
+              onPorPagina={setPorPagina}
+              rotulo="Paginação de categorias"
+            />
+          </>
         )}
       </div>
 

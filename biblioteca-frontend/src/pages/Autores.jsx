@@ -1,11 +1,14 @@
 import { useEffect, useState, useMemo } from 'react'
 import Formulario from '../components/Formulario'
+import Paginacao from '../components/Paginacao'
 import { useDialogo } from '../context/DialogoContext'
 import { listarAutores, cadastrarAutor, atualizarAutor, excluirAutor } from '../api/autores'
 import './Pagina.css'
 import './ListaComBusca.css'
 
 const CAMPOS = [{ name: 'nome', label: 'Nome', required: true, placeholder: 'Nome do autor' }]
+
+const POR_PAGINA_PADRAO = 20
 
 export default function Autores() {
   const { alertar, confirmar } = useDialogo()
@@ -17,6 +20,8 @@ export default function Autores() {
   const [erro, setErro]                   = useState('')
   const [erroGeral, setErroGeral]         = useState('')
   const [carregando, setCarregando]       = useState(true)
+  const [pagina, setPagina]               = useState(1)
+  const [porPagina, setPorPagina]         = useState(POR_PAGINA_PADRAO)
 
   async function carregar() {
     try { setAutores(await listarAutores()) }
@@ -54,6 +59,19 @@ export default function Autores() {
     return autores.filter(a => a.nome.toLowerCase().includes(q))
   }, [autores, busca])
 
+  // ── Paginação ────────────────────────────────────────
+  // A lista inteira já está em memória (GET /api/autores não pagina),
+  // então o recorte é feito aqui. Volta para a página 1 quando o
+  // conjunto muda, para nunca cair numa página que ficou vazia.
+  useEffect(() => { setPagina(1) }, [busca, porPagina])
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / porPagina))
+  const paginaSegura = Math.min(pagina, totalPaginas)
+  const paginaAtual = useMemo(() => {
+    const inicio = (paginaSegura - 1) * porPagina
+    return filtrados.slice(inicio, inicio + porPagina)
+  }, [filtrados, paginaSegura, porPagina])
+
   if (carregando) return (
     <div className="pagina"><div className="dashboard-carregando"><div className="spinner" /></div></div>
   )
@@ -64,7 +82,10 @@ export default function Autores() {
         <div className="pagina-header">
           <div>
             <h1 className="pagina-titulo">Autores</h1>
-            <p className="pagina-subtitulo">{filtrados.length} de {autores.length} autor(es)</p>
+            <p className="pagina-subtitulo" aria-live="polite">
+              {filtrados.length} de {autores.length} autor(es)
+              {totalPaginas > 1 && ` · página ${paginaSegura} de ${totalPaginas}`}
+            </p>
           </div>
           <button className="btn-primario" onClick={abrirNovo}>+ Novo Autor</button>
         </div>
@@ -91,17 +112,28 @@ export default function Autores() {
         {filtrados.length === 0 ? (
           <p className="tabela-vazia">Nenhum autor encontrado.</p>
         ) : (
-          <ul className="lcb-lista">
-            {filtrados.map(a => (
-              <li key={a.id} className={`lcb-item ${editando?.id === a.id && drawerAberto ? 'lcb-item--ativo' : ''}`}>
-                <span className="lcb-item-nome">{a.nome}</span>
-                <div className="lcb-item-acoes">
-                  <button className="btn-editar" onClick={() => abrirEdicao(a)}>Editar</button>
-                  <button className="btn-excluir" onClick={() => handleExcluir(a.id)}>Excluir</button>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="lcb-lista">
+              {paginaAtual.map(a => (
+                <li key={a.id} className={`lcb-item ${editando?.id === a.id && drawerAberto ? 'lcb-item--ativo' : ''}`}>
+                  <span className="lcb-item-nome">{a.nome}</span>
+                  <div className="lcb-item-acoes">
+                    <button className="btn-editar" onClick={() => abrirEdicao(a)}>Editar</button>
+                    <button className="btn-excluir" onClick={() => handleExcluir(a.id)}>Excluir</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <Paginacao
+              pagina={paginaSegura}
+              totalPaginas={totalPaginas}
+              onChange={setPagina}
+              porPagina={porPagina}
+              onPorPagina={setPorPagina}
+              rotulo="Paginação de autores"
+            />
+          </>
         )}
       </div>
 

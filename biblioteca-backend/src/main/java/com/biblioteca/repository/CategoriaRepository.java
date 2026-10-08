@@ -2,8 +2,63 @@ package com.biblioteca.repository;
 
 import com.biblioteca.model.Categoria;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
+
+    /**
+     * Uma linha de área: só o que a árvore precisa, semLivro nem Subcategoria,
+     * para o cálculo da faceta não arrastar a coleção inteira.
+     */
+    record AreaRow(Long id, String nome, Integer ordem, String cor) {}
+
+    /** Uma linha de subcategoria com o id da área a que pertence. */
+    record SubcategoriaRow(Long id, String nome, Long areaId) {}
+
+    /**
+     * As áreas na ordem fixa de exibição.
+     *
+     * "categoria_pai_id IS NULL AND cor IS NOT NULL" separa as áreas das
+     * categorias antigas que a migração deixou sem classificar: elas também não
+     * têm pai, mas também não têm cor, e não devem aparecer em lugar nenhum.
+     */
+    @Query("SELECT new com.biblioteca.repository.CategoriaRepository$AreaRow(c.id, c.nome, c.ordemExibicao, c.cor) "
+         + "FROM Categoria c "
+         + "WHERE c.categoriaPai IS NULL AND c.cor IS NOT NULL "
+         + "ORDER BY c.ordemExibicao, c.nome")
+    List<AreaRow> findAreasOrdenadas();
+
+    /** Todas as subcategorias, com a área a que pertencem. */
+    @Query("SELECT new com.biblioteca.repository.CategoriaRepository$SubcategoriaRow("
+         + "c.id, c.nome, c.categoriaPai.id) "
+         + "FROM Categoria c "
+         + "WHERE c.categoriaPai IS NOT NULL "
+         + "ORDER BY c.nome")
+    List<SubcategoriaRow> findSubcategorias();
+
+    @Query("SELECT c.id FROM Categoria c "
+         + "WHERE c.categoriaPai IS NULL AND c.cor IS NOT NULL")
+    List<Long> findIdsDasAreas();
+
+    /** Só as subcategorias, para validar ids vindos do parâmetro. */
+    @Query("SELECT c.id FROM Categoria c WHERE c.categoriaPai IS NOT NULL")
+    List<Long> findIdsDasSubcategorias();
+
+    /**
+     * As categorias que ainda valem: as 10 áreas e as 47 subcategorias.
+     *
+     * Um findAll() traria também as 129 categorias que a migração deixou sem
+     * classificar. Elas existem só para o rollback e não apontam para livro
+     * nenhum, então devolvê-las punha na tela de administração 129 linhas
+     * órfãs que ninguém consegue usar nem apagar com sentido.
+     */
+    @Query("SELECT c FROM Categoria c "
+         + "WHERE c.categoriaPai IS NOT NULL "
+            + "OR (c.categoriaPai IS NULL AND c.cor IS NOT NULL) "
+         + "ORDER BY c.ordemExibicao, c.nome")
+    List<Categoria> findAllReais();
 }

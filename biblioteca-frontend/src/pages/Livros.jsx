@@ -1,12 +1,16 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Tabela from '../components/Tabela'
 import Modal from '../components/Modal'
 import Formulario from '../components/Formulario'
 import CapaLivro from '../components/CapaLivro'
+import Paginacao from '../components/Paginacao'
+import FiltroPilhas from '../components/FiltroPilhas'
 import { useAuth } from '../context/AuthContext'
 import { useDialogo } from '../context/DialogoContext'
 import {
   listarLivros,
+  buscarLivros,
   cadastrarLivro,
   atualizarLivro,
   excluirLivro,
@@ -18,7 +22,7 @@ import {
   sincronizarCapas
 } from '../api/livros'
 import { listarAutores } from '../api/autores'
-import { listarCategorias } from '../api/categorias'
+import { listarCategorias, arvoreCategorias } from '../api/categorias'
 import { useSincronizacao } from '../context/SincronizacaoContext'
 import './Pagina.css'
 import './Livros.css'
@@ -70,10 +74,23 @@ const EPOCAS = [
   { label: 'Antiguidade',     value: '-9999-499', ini: -9999, fim: 499  },
 ]
 
-// Mapeia o valor do select para o range { ini, fim }
-function epocaParaRange(value) {
-  const ep = EPOCAS.find(e => e.value === value)
-  return ep ? { ini: ep.ini, fim: ep.fim } : null
+/** O mesmo limite que o servidor valida, pra não descobrir errado. */
+const MAX_CATEGORIAS_POR_LIVRO = 4
+
+/**
+ * Lê a lista de ids de um parâmetro da URL.
+ *
+ * "cat=12,15,abc" tem que devolver [12, 15] e não quebrar a página: a URL pode
+ * ter sido montada à mão, vir de um link antigo de quando a taxonomia tinha
+ * outros ids, ou simplesmente estar digitada errado. Um filtro que derruba a
+ * tela por causa de um número é pior do que um filtro que ignora o número.
+ */
+function idsDaUrl(valor) {
+  if (!valor) return []
+  return valor
+    .split(',')
+    .map(s => parseInt(s.trim(), 10))
+    .filter(n => Number.isInteger(n) && n > 0)
 }
 
 // Retorna o label completo para exibir no select (inclui anos)
@@ -254,18 +271,28 @@ function GridDropdown({ gridConfig, onChange }) {
 // ── Card de livro ────────────────────────────────────────────
 function CardLivro({ livro, onSolicitar }) {
   const disponivel = livro.quantidadeDisponivel > 0
+  // A cor vem da área da categoria principal: é ela que define a lombada.
+  const corArea = livro.categoriaPrincipal?.categoriaPai?.cor ?? null
+  // A principal vem primeiro na lista, para o card não esconder qual é.
+  const categorias = [
+    ...(livro.categorias ?? []).filter(c => c.id === livro.categoriaPrincipal?.id),
+    ...(livro.categorias ?? []).filter(c => c.id !== livro.categoriaPrincipal?.id),
+  ]
 
   return (
-    <article className={`livro-card ${!disponivel ? 'livro-card--indisponivel' : ''}`}>
+    <article
+      className={`livro-card ${!disponivel ? 'livro-card--indisponivel' : ''}`}
+      style={corArea ? { '--cor-area': corArea } : undefined}
+    >
       {/* Capa com imagem servida pelo backend e fallback CSS */}
       <div className="livro-capa">
-        <CapaLivro livro={livro} />
+        <CapaLivro livro={livro} cor={corArea} />
         {!disponivel && <div className="livro-capa-overlay">Indisponível</div>}
       </div>
 
       <div className="livro-card-corpo">
         <p className="livro-card-categoria">
-          {(livro.categorias ?? []).map(c => c.nome).join(' · ') || '—'}
+          {categorias.map(c => c.nome).join(' · ') || '—'}
         </p>
         <h3 className="livro-card-titulo">{livro.titulo}</h3>
         <p className="livro-card-autor">{livro.autor?.nome ?? '—'}</p>
@@ -287,71 +314,8 @@ function CardLivro({ livro, onSolicitar }) {
   )
 }
 
-// ── Paginação ────────────────────────────────────────────────
-function Paginacao({ paginaAtual, totalPaginas, onChange }) {
-  if (totalPaginas <= 1) return null
-
-  // Máximo 7 botões: sempre mostra primeira, última e até 5 ao redor da atual
-  function paginas() {
-    const lista = []
-    const delta = 2
-    for (let i = 1; i <= totalPaginas; i++) {
-      if (
-        i === 1 || i === totalPaginas ||
-        (i >= paginaAtual - delta && i <= paginaAtual + delta)
-      ) {
-        lista.push(i)
-      }
-    }
-    // Insere reticências
-    const comReticencias = []
-    for (let i = 0; i < lista.length; i++) {
-      if (i > 0 && lista[i] - lista[i - 1] > 1) comReticencias.push('…')
-      comReticencias.push(lista[i])
-    }
-    return comReticencias
-  }
-
-  return (
-    <nav className="livros-paginacao" aria-label="Paginação">
-      <button
-        className="pag-btn pag-nav"
-        disabled={paginaAtual === 1}
-        onClick={() => onChange(paginaAtual - 1)}
-        aria-label="Página anterior"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
-        </svg>
-      </button>
-
-      {paginas().map((p, i) =>
-        p === '…' ? (
-          <span key={`e${i}`} className="pag-reticencias">…</span>
-        ) : (
-          <button
-            key={p}
-            className={`pag-btn ${p === paginaAtual ? 'ativo' : ''}`}
-            onClick={() => onChange(p)}
-            aria-label={`Página ${p}`}
-            aria-current={p === paginaAtual ? 'page' : undefined}
-          >{p}</button>
-        )
-      )}
-
-      <button
-        className="pag-btn pag-nav"
-        disabled={paginaAtual === totalPaginas}
-        onClick={() => onChange(paginaAtual + 1)}
-        aria-label="Próxima página"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
-        </svg>
-      </button>
-    </nav>
-  )
-}
+// A paginação vive em components/Paginacao.jsx, compartilhada com
+// Autores e Categorias.
 
 // ════════════════════════════════════════════════════════════
 // Componente principal
@@ -362,7 +326,8 @@ export default function Livros() {
   const { sincronizar, status: sincStatus } = useSincronizacao()
   const ehBibliotecario = isBibliotecario()
 
-  const [livros,     setLivros]     = useState([])
+  // A listagem de livros não mora aqui: vem de buscarNoServidor(), já filtrada
+  // e paginada pelo banco. Aqui ficam só as listas de apoio dos outros filtros.
   const [autores,    setAutores]    = useState([])
   const [categorias, setCategorias] = useState([])
   const [modalAberto, setModalAberto] = useState(false)
@@ -382,24 +347,150 @@ export default function Livros() {
   const inputArquivoRef = useRef(null)
 
   const [busca,           setBusca]           = useState('')
-  const [filtrosCategorias, setFiltrosCategorias] = useState([]) // array de IDs (multi)
   const [filtroAutor,     setFiltroAutor]     = useState('')
   const [filtroEpoca,     setFiltroEpoca]     = useState('')
   const [filtroEstoque,   setFiltroEstoque]   = useState('todos')
   const [filtrosAbertos,  setFiltrosAbertos]  = useState(false)
 
-  // Grid e paginação (aluno)
+  // ── Filtro em pilhas ──────────────────────────────────
+  // A seleção mora na URL, e não no estado. Assim o botão voltar desfaz,
+  // recarregar mantém e um link colado no WhatsApp traz o filtro inteiro —
+  // as três coisas caem de graça de um estado só.
+  const [params, setParams] = useSearchParams()
+
+  // Decodificar a URL devolve um array NOVO a cada render. Se esse array fosse
+  // dependência do useCallback da busca, o callback mudaria de identidade a
+  // cada render, o efeito rodaria de novo, o estado mudaria, novo render —
+// e o navegador nunca pararia de pedir /api/livros. Memorizar pela string
+  // bruta quebra o ciclo: enquanto a URL não muda, o array é o mesmo.
+  const catBruto  = params.get('cat')
+  const areaBruto = params.get('area')
+  const paginaBruta = params.get('pagina')
+
+  const categoriasUrl = useMemo(() => idsDaUrl(catBruto), [catBruto])
+  const areasUrl      = useMemo(() => idsDaUrl(areaBruto), [areaBruto])
+  const modoUrl       = params.get('modo') === 'todas' ? 'todas' : 'qualquer'
+  const paginaUrl     = Math.max(1, parseInt(paginaBruta || '1', 10) || 1)
+
+  const [arvore, setArvore]       = useState([])
+  const [paginaDados, setPaginaDados] = useState({ itens: [], total: 0, totalPaginas: 0 })
+  /**
+   * Quantos livros tem o acervo sem nenhum filtro. Vem separado porque somar
+   * os totais das áreas não serve: um livro com duas subcategorias da mesma
+   * área seria contado duas vezes.
+   */
+  const [totalAcervo, setTotalAcervo] = useState(0)
+  // Só os dois totais que o "Combinar" mostra. As contagens por subcategoria e
+  // por área que a API também devolve não são guardadas aqui: elas chegam
+  // dentro de cada nó da árvore, já no formato que o botão mostra, e manter
+  // as duas cópias faria elas poderem divergir na tela.
+  const [facetas, setFacetas]     = useState({ totalQualquer: 0, totalTodas: 0 })
+  const [zeroNoModo, setZeroNoModo] = useState(false)
+  const [carregandoEstante, setCarregandoEstante] = useState(true)
+
+  /**
+   * Escreve o filtro na URL.
+   *
+   * Usa replace em vez de push quando só a página muda: trocar de página não
+   * deve encher o histórico de voltas, mas marcar uma categoria deve — aí o
+   * "voltar" desfaz a marcação, que é o que se espera.
+   */
+  function atualizarUrl(mudancas, { substituir = false } = {}) {
+    setParams(antigos => {
+      const proximos = new URLSearchParams(antigos)
+      for (const [chave, valor] of Object.entries(mudancas)) {
+        // Página 1 é o padrão: gravar "pagina=1" só enfeita a URL que o
+        // usuário vai copiar para o colega.
+        const ehPaginaPadrao = chave === 'pagina' && valor === 1
+        if (valor === null || valor === '' || ehPaginaPadrao ||
+            (Array.isArray(valor) && valor.length === 0)) {
+          proximos.delete(chave)
+        } else {
+          proximos.set(chave, Array.isArray(valor) ? valor.join(',') : String(valor))
+        }
+      }
+      return proximos
+    }, { replace: substituir })
+  }
+
+  function alternarCategoria(id) {
+    const nova = categoriasUrl.includes(id)
+      ? categoriasUrl.filter(x => x !== id)
+      : [...categoriasUrl, id]
+    atualizarUrl({ cat: nova, pagina: 1 })
+  }
+
+  function alternarArea(id) {
+    const nova = areasUrl.includes(id)
+      ? areasUrl.filter(x => x !== id)
+      : [...areasUrl, id]
+    atualizarUrl({ area: nova, pagina: 1 })
+  }
+
+  function trocarModo(modo) {
+    atualizarUrl({ modo: modo === 'qualquer' ? null : modo })
+  }
+
+  function limparFiltroCategorias() {
+    atualizarUrl({ cat: null, area: null, modo: null, pagina: 1 })
+  }
+
+  // Grid (aluno). A página não mora aqui: é paginaUrl, que vem da URL.
   const [gridConfig, setGridConfig] = useState(GRID_PADRAO)
-  const [pagina,     setPagina]     = useState(1)
+
+  /**
+   * Busca a estante e a árvore no servidor, sempre com o filtro atual.
+   *
+   * As duas vão juntas porque as contagens da pilha e as da estante precisam
+   * dizer a mesma coisa. Se buscassem em momentos diferentes, marcar uma
+   * categoria poderia mostrar "42 livros" na pilha e "40" na estante.
+   */
+  const buscarNoServidor = useCallback(async () => {
+    setCarregandoEstante(true)
+    const comum = {
+      categorias: categoriasUrl,
+      areas: areasUrl,
+      modo: modoUrl,
+      texto: busca,
+      autor: filtroAutor ? parseInt(filtroAutor) : null,
+      epoca: filtroEpoca,
+      disponiveis: filtroEstoque === 'todos' ? '' : filtroEstoque === 'disponiveis',
+    }
+    try {
+      const [resposta, arvore] = await Promise.all([
+        buscarLivros({ ...comum, pagina: paginaUrl, tamanho: gridConfig.porPagina }),
+        arvoreCategorias(comum),
+      ])
+      setPaginaDados(resposta)
+      setFacetas({
+        totalQualquer: resposta.totalQualquer,
+        totalTodas: resposta.totalTodas,
+      })
+      setZeroNoModo(resposta.zeroNoModo)
+      setArvore(arvore.areas ?? [])
+      // Só some o aviso quando a busca deu certo. Um erro antigo ficaria
+      // na tela ao lado de uma estante perfeitamente carregada.
+      setErroGeral('')
+    } catch {
+      setErroGeral('Não foi possível carregar o acervo.')
+    } finally {
+      setCarregandoEstante(false)
+    }
+  }, [categoriasUrl, areasUrl, modoUrl, busca, filtroAutor, filtroEpoca, filtroEstoque, paginaUrl, gridConfig.porPagina])
+
+  // Um efeito só, para as duas requisições. Separate, a estante e a árvore
+  // chegariam em momentos diferentes e a tela piscaria duas vezes.
+  useEffect(() => {
+    if (carregando) return
+    buscarNoServidor()
+  }, [buscarNoServidor, carregando])
 
   async function carregar() {
     setErroGeral('')
     try {
-      const [livrosData, autoresData, categoriasData] = await Promise.all([
-        listarLivros(), listarAutores(), listarCategorias()
+      const [autoresData, categoriasData] = await Promise.all([
+        listarAutores(), listarCategorias()
       ])
-      livrosData.sort((a, b) => (a.titulo ?? '').localeCompare(b.titulo ?? '', 'pt-BR'))
-      setLivros(livrosData)
       setAutores(autoresData)
       setCategorias(categoriasData)
 
@@ -481,109 +572,95 @@ export default function Livros() {
 
   useEffect(() => { carregar() }, [])
 
-  // Volta p/ página 1 sempre que um filtro muda
-  useEffect(() => { setPagina(1) }, [busca, filtrosCategorias, filtroAutor, filtroEpoca, filtroEstoque, gridConfig])
+  // O total do acervo sem filtro, uma vez só. Depois ele não muda mais.
+  useEffect(() => {
+    if (carregando) return
+    buscarLivros({ pagina: 1, tamanho: 1 })
+      .then(r => setTotalAcervo(r.total ?? 0))
+      .catch(() => setTotalAcervo(0))
+  }, [carregando])
 
-  // ── Filtros reativos ─────────────────────────────────────
-  const livrosPorBusca = useMemo(() => {
-    if (!busca) return livros
-    const q = busca.toLowerCase()
-    return livros.filter(l =>
-      l.titulo?.toLowerCase().includes(q) ||
-      l.autor?.nome?.toLowerCase().includes(q) ||
-      l.isbn?.includes(q)
-    )
-  }, [livros, busca])
+  // ── O que a estante mostra ─────────────────────────────
+  // O recorte inteiro acontece no servidor. Aqui não sobra filtragem: o que
+  // chega já é a página pedida, com os totais e as facetas prontos.
+  const livrosPagina  = paginaDados.itens ?? []
+  const totalPaginas   = Math.max(1, paginaDados.totalPaginas ?? 1)
+  const paginaSegura   = Math.min(paginaUrl, totalPaginas)
 
-  function passaFiltros(livro, exceto = null) {
-    const buscaOk = livrosPorBusca.includes(livro)
+  const totalMarcadas = categoriasUrl.length + areasUrl.length
+  const temFiltroAtivo =
+    busca || totalMarcadas > 0 || filtroAutor || filtroEpoca || filtroEstoque !== 'todos'
 
-    // multi-categoria: livro passa se qualquer das suas categorias estiver no array selecionado
-    const catOk = exceto === 'cat' || filtrosCategorias.length === 0 ||
-      (livro.categorias ?? []).some(c => filtrosCategorias.includes(c.id))
-
-    const autorOk = exceto === 'autor' || !filtroAutor ||
-      livro.autor?.id === parseInt(filtroAutor)
-
-    const range = epocaParaRange(filtroEpoca)
-    const epocaOk = exceto === 'epoca' || !range ||
-      (livro.anoPublicacao != null &&
-       livro.anoPublicacao >= range.ini &&
-       livro.anoPublicacao <= range.fim)
-
-    const estOk = exceto === 'estoque' || filtroEstoque === 'todos' ||
-      (filtroEstoque === 'disponiveis'   && livro.quantidadeDisponivel > 0) ||
-      (filtroEstoque === 'indisponiveis' && livro.quantidadeDisponivel === 0)
-
-    return buscaOk && catOk && autorOk && epocaOk && estOk
-  }
-
-  const categoriasDisponiveis = useMemo(() => {
-    const ids = new Set(
-      livros.filter(l => passaFiltros(l, 'cat'))
-        .flatMap(l => (l.categorias ?? []).map(c => c.id))
-    )
-    return categorias.filter(c => ids.has(c.id)).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
-  }, [livros, categorias, livrosPorBusca, filtroAutor, filtroEpoca, filtroEstoque])
-
-  const autoresDisponiveis = useMemo(() => {
-    const ids = new Set(livros.filter(l => passaFiltros(l, 'autor')).map(l => l.autor?.id))
-    return autores.filter(a => ids.has(a.id)).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
-  }, [livros, autores, livrosPorBusca, filtrosCategorias, filtroEpoca, filtroEstoque])
-
-  // Épocas que têm pelo menos 1 livro dado os outros filtros
-  const epocasDisponiveis = useMemo(() => {
-    const anosPresentes = livros
-      .filter(l => passaFiltros(l, 'epoca') && l.anoPublicacao != null)
-      .map(l => l.anoPublicacao)
-    return EPOCAS.filter(ep =>
-      anosPresentes.some(a => a >= ep.ini && a <= ep.fim)
-    )
-  }, [livros, livrosPorBusca, filtrosCategorias, filtroAutor, filtroEstoque])
-
-  const livrosFiltrados = useMemo(() =>
-    livros.filter(l => passaFiltros(l)),
-    [livros, livrosPorBusca, filtrosCategorias, filtroAutor, filtroEpoca, filtroEstoque]
-  )
-
-  const temFiltroAtivo = busca || filtrosCategorias.length > 0 || filtroAutor || filtroEpoca || filtroEstoque !== 'todos'
+  /** Quantos filtros estão no ar — o número que aparece no botão "Filtros". */
+  const quantidadeDeFiltros =
+    totalMarcadas +
+    (busca ? 1 : 0) +
+    (filtroAutor ? 1 : 0) +
+    (filtroEpoca ? 1 : 0) +
+    (filtroEstoque !== 'todos' ? 1 : 0)
 
   function limparFiltros() {
-    setBusca(''); setFiltrosCategorias([]); setFiltroAutor('')
+    setBusca(''); setFiltroAutor('')
     setFiltroEpoca(''); setFiltroEstoque('todos')
+    limparFiltroCategorias()
   }
 
-  // Reset automático — remove categorias selecionadas que saíram do conjunto disponível
-  // (compara por ID numérico, sem conversão de tipo)
-  useEffect(() => {
-    if (filtrosCategorias.length > 0) {
-      const idsDisponiveis = new Set(categoriasDisponiveis.map(c => c.id))
-      const mantidas = filtrosCategorias.filter(id => idsDisponiveis.has(id))
-      if (mantidas.length !== filtrosCategorias.length) setFiltrosCategorias(mantidas)
-    }
-  }, [categoriasDisponiveis])
+  /**
+ * As categorias agrupadas por área, na ordem da tela de filtros.
+ *
+ * Só entram subcategorias. A lista vem inteira — com as áreas — porque a tela
+ * de administração precisa delas, mas um livro não pode ser ligado a uma área:
+ * o servidor rejeitaria com "é uma área, não uma categoria". Agrupar também
+ * evita que alguém procure "Ficção Científica" entre 57 botões sem fim.
+ */
+const categoriasAgrupadas = useMemo(() => {
+  const porArea = new Map()
+  for (const c of categorias) {
+    if (!c.categoriaPai) continue
+    const chave = c.categoriaPai.id
+    if (!porArea.has(chave)) porArea.set(chave, { area: c.categoriaPai, subs: [] })
+    porArea.get(chave).subs.push(c)
+  }
+  return [...porArea.values()]
+    .sort((a, b) => (a.area.ordemExibicao ?? 999) - (b.area.ordemExibicao ?? 999))
+    .map(g => ({ ...g, subs: g.subs.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')) }))
+  }, [categorias])
 
-  useEffect(() => {
-    if (filtroAutor && !autoresDisponiveis.find(a => a.id === parseInt(filtroAutor)))
-      setFiltroAutor('')
-  }, [autoresDisponiveis])
+  /**
+   * Só o que o servidor já devolveu: a lista completa de autores e de épocas.
+   *
+   * Antes, o menu de autores escondeia quem não tinha livro depois do filtro,
+   * e fazia isso com um cálculo no navegador que rodava a cada tecla. Agora o
+   * servidor já sabe o que existe, e esconder autor por autor exigiria uma
+   * contagem por autor que ninguém pediu.
+   */
+  const autoresDisponiveis = useMemo(
+    () => [...autores].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
+    [autores]
+  )
+  const epocasDisponiveis = EPOCAS
 
-  useEffect(() => {
-    if (filtroEpoca && !epocasDisponiveis.find(e => e.value === filtroEpoca))
-      setFiltroEpoca('')
-  }, [epocasDisponiveis])
-
-  // ── Paginação ────────────────────────────────────────────
-  const totalPaginas = Math.max(1, Math.ceil(livrosFiltrados.length / gridConfig.porPagina))
-  const paginaSegura = Math.min(pagina, totalPaginas)
-  const livrosPagina = useMemo(() => {
-    const inicio = (paginaSegura - 1) * gridConfig.porPagina
-    return livrosFiltrados.slice(inicio, inicio + gridConfig.porPagina)
-  }, [livrosFiltrados, paginaSegura, gridConfig.porPagina])
-
-  // ── Barra de filtros ─────────────────────────────────────
+  // ════════════════════════════════════════════════════════════
+  // Barra de filtros
+  // ════════════════════════════════════════════════════════════
   const barraFiltros = (
     <div className="livros-filtros-area">
+      <FiltroPilhas
+        arvore={arvore}
+        selecionados={categoriasUrl}
+        areasSelecionadas={areasUrl}
+        modo={modoUrl}
+        totalNoModo={paginaDados.total ?? 0}
+        totalQualquer={facetas.totalQualquer}
+        totalTodas={facetas.totalTodas}
+        zeroNoModo={zeroNoModo}
+        carregando={carregandoEstante}
+        onAlternarSubcategoria={alternarCategoria}
+        onAlternarArea={alternarArea}
+        onLimpar={limparFiltroCategorias}
+        onTrocarModo={trocarModo}
+      />
+
       <div className="livros-busca-wrapper">
         <svg className="livros-busca-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
@@ -593,7 +670,7 @@ export default function Livros() {
           type="search"
           placeholder="Buscar por título, autor ou ISBN…"
           value={busca}
-          onChange={e => setBusca(e.target.value)}
+          onChange={e => { setBusca(e.target.value); atualizarUrl({ pagina: 1 }) }}
           aria-label="Buscar livros"
         />
         {busca && (
@@ -611,7 +688,9 @@ export default function Livros() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
           </svg>
           Filtros
-          {temFiltroAtivo && <span className="livros-filtros-badge">●</span>}
+          {quantidadeDeFiltros > 0 && (
+            <span className="livros-filtros-badge">{quantidadeDeFiltros}</span>
+          )}
         </button>
 
         {temFiltroAtivo && (
@@ -621,36 +700,12 @@ export default function Livros() {
 
       {filtrosAbertos && (
         <div className="livros-filtros-grid">
-          {/* Categorias — seleção múltipla por pílulas */}
-          <div className="livros-filtro-campo livros-filtro-campo--full">
-            <label>Categorias</label>
-            <div className="filtro-cat-pills">
-              {categoriasDisponiveis.map(c => {
-                const ativa = filtrosCategorias.includes(c.id)
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    className={`filtro-cat-pill ${ativa ? 'filtro-cat-pill--ativa' : ''}`}
-                    onClick={() => setFiltrosCategorias(ativa
-                      ? filtrosCategorias.filter(id => id !== c.id)
-                      : [...filtrosCategorias, c.id]
-                    )}
-                  >
-                    {c.nome}
-                    {ativa && <span className="filtro-cat-pill-x">✕</span>}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
           <SelectBuscavel
             label="Autor"
             placeholderOpcao="Todos os autores"
             opcoes={autoresDisponiveis.map(a => ({ value: a.id, label: a.nome }))}
             valor={filtroAutor}
-            onChange={setFiltroAutor}
+            onChange={v => { setFiltroAutor(v); atualizarUrl({ pagina: 1 }) }}
           />
 
           <SelectBuscavel
@@ -658,7 +713,7 @@ export default function Livros() {
             placeholderOpcao="Todas as épocas"
             opcoes={epocasDisponiveis.map(ep => ({ value: ep.value, label: epocaFullLabel(ep) }))}
             valor={filtroEpoca}
-            onChange={setFiltroEpoca}
+            onChange={v => { setFiltroEpoca(v); atualizarUrl({ pagina: 1 }) }}
           />
 
           <SelectBuscavel
@@ -669,7 +724,7 @@ export default function Livros() {
               { value: 'indisponiveis', label: 'Indisponíveis' },
             ]}
             valor={filtroEstoque === 'todos' ? '' : filtroEstoque}
-            onChange={v => setFiltroEstoque(v || 'todos')}
+            onChange={v => { setFiltroEstoque(v || 'todos'); atualizarUrl({ pagina: 1 }) }}
           />
         </div>
       )}
@@ -712,8 +767,8 @@ export default function Livros() {
           <div className="pagina-header">
             <div>
               <h1 className="pagina-titulo">Acervo</h1>
-              <p className="pagina-subtitulo">
-                {livrosFiltrados.length} de {livros.length} livro(s)
+              <p className="pagina-subtitulo" aria-live="polite">
+                {paginaDados.total ?? 0} de {totalAcervo} livro(s)
               </p>
             </div>
             <div className="header-acoes-bibliotecario">
@@ -753,15 +808,18 @@ export default function Livros() {
           {/* Controles de grid + paginação — igual à visão do aluno */}
           <div className="livros-controles">
             <p className="livros-resultado-total">
-              {livrosFiltrados.length} livro{livrosFiltrados.length !== 1 ? 's' : ''}
+              {paginaDados.total ?? 0} livro{(paginaDados.total ?? 0) !== 1 ? 's' : ''}
               {temFiltroAtivo && ' filtrados'}
               {totalPaginas > 1 && ` · página ${paginaSegura} de ${totalPaginas}`}
             </p>
-            <GridDropdown gridConfig={gridConfig} onChange={op => { setGridConfig(op); setPagina(1) }} />
+            <GridDropdown
+              gridConfig={gridConfig}
+              onChange={op => { setGridConfig(op); atualizarUrl({ pagina: 1 }) }}
+            />
           </div>
 
           {/* Grid de cards */}
-          {livrosFiltrados.length === 0 ? (
+          {livrosPagina.length === 0 ? (
             <div className="livros-vazio">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -776,6 +834,7 @@ export default function Livros() {
                   <article
                     key={livro.id}
                     className={`livro-card bib-card ${livroEditando?.id === livro.id && modalAberto ? 'bib-card--ativo' : ''}`}
+                    style={{ '--cor-area': livro.categoriaPrincipal?.categoriaPai?.cor ?? 'transparent' }}
                   >
                     <div className="livro-capa">
                       <CapaLivro livro={livro} />
@@ -798,7 +857,12 @@ export default function Livros() {
                             anoPublicacao: livro.anoPublicacao ?? '',
                             quantidadeTotal: livro.quantidadeTotal ?? livro.quantidadeDisponivel,
                             autorId: livro.autor?.id ?? '',
-                            categoriaIds: (livro.categorias ?? []).map(c => c.id),
+                            // A principal vem primeiro para o formulário saber qual é,
+                          // já que ele ainda usa "a primeira é a principal".
+                          categoriaIds: [
+                            ...(livro.categorias ?? []).filter(c => c.id === livro.categoriaPrincipal?.id),
+                            ...(livro.categorias ?? []).filter(c => c.id !== livro.categoriaPrincipal?.id),
+                          ].map(c => c.id),
                           })
                           setErro('')
                           setModalRevisaoAberto(false)
@@ -816,9 +880,14 @@ export default function Livros() {
                 ))}
               </div>
               <Paginacao
-                paginaAtual={paginaSegura}
+                pagina={paginaSegura}
                 totalPaginas={totalPaginas}
-                onChange={p => { setPagina(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onChange={p => {
+                  // Trocar de página não deve encher o histórico de voltas:
+                  // são 12 cliques para voltar na barra do navegador.
+                  atualizarUrl({ pagina: p }, { substituir: true })
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
               />
             </>
           )}
@@ -860,13 +929,27 @@ export default function Livros() {
                           setErro('Selecione ao menos uma categoria.')
                           return
                         }
+                        if (valores.categoriaIds.length > MAX_CATEGORIAS_POR_LIVRO) {
+                          setErro(`Escolha no máximo ${MAX_CATEGORIAS_POR_LIVRO} categorias. Você marcou ${valores.categoriaIds.length}.`)
+                          return
+                        }
                         const payload = {
                           titulo: valores.titulo,
                           isbn: livroEditando ? livroEditando.isbn : valores.isbn,
                           anoPublicacao: valores.anoPublicacao ? parseInt(valores.anoPublicacao) : null,
                           quantidadeTotal: parseInt(valores.quantidadeTotal),
                           autor: { id: parseInt(valores.autorId) },
-                          categorias: (valores.categoriaIds ?? []).map(id => ({ id: parseInt(id) })),
+                          // O backend lê as categorias de livroCategorias, com uma
+                          // marcada como principal. Este formulário numera as
+                          // escolhidas na ordem em que foram marcadas e a
+                          // número 1 é a principal — é o que o ★ na grade
+                          // indica. A Etapa 4 troca isso por um campo
+                          // "qual é a principal" explícito, com busca e
+                          // criação de subcategoria.
+                          livroCategorias: (valores.categoriaIds ?? []).map((id, i) => ({
+                            categoria: { id: parseInt(id) },
+                            principal: i === 0,
+                          })),
                         }
                         try {
                           if (livroEditando) await atualizarLivro(livroEditando.id, payload)
@@ -880,33 +963,65 @@ export default function Livros() {
                     >
                       {/* Seletor de categorias múltiplas — renderizado dentro do form via children */}
                       <div className="formulario-campo">
-                        <label>Categorias <span style={{fontSize:'0.7rem',fontWeight:400,opacity:0.7}}>(selecione uma ou mais)</span></label>
-                        <div className="multi-cat-grid">
-                          {categorias.map(c => {
-                            const selecionado = (valores.categoriaIds ?? []).includes(c.id) ||
-                                                (valores.categoriaIds ?? []).includes(String(c.id))
-                            return (
-                              <button
-                                key={c.id}
-                                type="button"
-                                className={`multi-cat-btn ${selecionado ? 'multi-cat-btn--ativo' : ''}`}
-                                onClick={() => {
-                                  const atual = valores.categoriaIds ?? []
-                                  const id = c.id
-                                  setValores({
-                                    ...valores,
-                                    categoriaIds: selecionado
-                                      ? atual.filter(x => x !== id && x !== String(id))
-                                      : [...atual, id]
-                                  })
-                                }}
-                              >
-                                {c.nome}
-                                {selecionado && <span className="multi-cat-check">✓</span>}
-                              </button>
-                            )
-                          })}
-                        </div>
+                        <label>
+                          Categorias
+                          <span style={{ fontSize: '0.7rem', fontWeight: 400, opacity: 0.7 }}>
+                            (de 1 a {MAX_CATEGORIAS_POR_LIVRO}; a marcada com ★ é a principal)
+                          </span>
+                        </label>
+
+                        {(valores.categoriaIds ?? []).length >= MAX_CATEGORIAS_POR_LIVRO && (
+                          <p className="multi-cat-aviso">
+                            {MAX_CATEGORIAS_POR_LIVRO} marcadas — o limite. Desmarque uma para trocar.
+                          </p>
+                        )}
+
+                        {categoriasAgrupadas.map(grupo => (
+                          <div key={grupo.area.id} className="multi-cat-grupo">
+                            <p className="multi-cat-area" style={{ '--cor-area': grupo.area.cor }}>
+                              <span className="multi-cat-ponto" aria-hidden="true" />
+                              {grupo.area.nome}
+                            </p>
+                            <div className="multi-cat-grid">
+                              {grupo.subs.map(c => {
+                                const ids = valores.categoriaIds ?? []
+                                const selecionado = ids.includes(c.id) || ids.includes(String(c.id))
+                                const ordem = ids.indexOf(c.id) !== -1
+                                  ? ids.indexOf(c.id)
+                                  : ids.indexOf(String(c.id))
+                                const principal = selecionado && ordem === 0
+                                const travado = !selecionado &&
+                                  ids.length >= MAX_CATEGORIAS_POR_LIVRO
+                                return (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    className={`multi-cat-btn ${selecionado ? 'multi-cat-btn--ativo' : ''} ${principal ? 'multi-cat-btn--principal' : ''}`}
+                                    disabled={travado}
+                                    onClick={() => {
+                                      const atual = valores.categoriaIds ?? []
+                                      const id = c.id
+                                      setValores({
+                                        ...valores,
+                                        categoriaIds: selecionado
+                                          ? atual.filter(x => x !== id && x !== String(id))
+                                          : [...atual, id],
+                                      })
+                                    }}
+                                  >
+                                    {selecionado && (
+                                      <span className="multi-cat-ordem" aria-hidden="true">
+                                        {ordem + 1}
+                                      </span>
+                                    )}
+                                    {c.nome}
+                                    {selecionado && <span className="multi-cat-check">✓</span>}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </Formulario>
 
@@ -992,20 +1107,20 @@ export default function Livros() {
           <h1 className="livros-hero-titulo">
             O que você vai<br /><em>ler hoje?</em>
           </h1>
-          <p className="livros-hero-sub">{livros.length} títulos no acervo</p>
+          <p className="livros-hero-sub">{totalAcervo} títulos no acervo</p>
         </div>
         <div className="livros-hero-stat">
           <span className="livros-hero-numero">
-            {livros.filter(l => l.quantidadeDisponivel > 0).length}
+            {facetas.totalQualquer}
           </span>
-          <span className="livros-hero-label">disponíveis agora</span>
+          <span className="livros-hero-label">livros no filtro atual</span>
         </div>
       </div>
 
       {erroGeral && <p className="erro-msg">{erroGeral}</p>}
       {barraFiltros}
 
-      {livrosFiltrados.length === 0 ? (
+      {livrosPagina.length === 0 ? (
         <div className="livros-vazio">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -1020,13 +1135,16 @@ export default function Livros() {
           {/* Barra de controle: resultado + seletor de grid */}
           <div className="livros-controles">
             <p className="livros-resultado-total">
-              {livrosFiltrados.length} resultado{livrosFiltrados.length !== 1 ? 's' : ''}
+              {paginaDados.total ?? 0} resultado{(paginaDados.total ?? 0) !== 1 ? 's' : ''}
               {temFiltroAtivo && ' para os filtros aplicados'}
               {totalPaginas > 1 && ` · página ${paginaSegura} de ${totalPaginas}`}
             </p>
 
           {/* Seletor de grid — dropdown */}
-          <GridDropdown gridConfig={gridConfig} onChange={op => { setGridConfig(op); setPagina(1) }} />
+          <GridDropdown
+            gridConfig={gridConfig}
+            onChange={op => { setGridConfig(op); atualizarUrl({ pagina: 1 }) }}
+          />
           </div>
 
           {/* Grid de cards */}
@@ -1050,9 +1168,12 @@ export default function Livros() {
 
           {/* Paginação */}
           <Paginacao
-            paginaAtual={paginaSegura}
+            pagina={paginaSegura}
             totalPaginas={totalPaginas}
-            onChange={p => { setPagina(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            onChange={p => {
+              atualizarUrl({ pagina: p }, { substituir: true })
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
           />
         </>
       )}

@@ -1,0 +1,164 @@
+﻿tipo,id_antigo,nome_antigo,livros_afetados,ordem_area,area,cor_area,subcategoria_sugerida,observacao
+categoria_antiga,1,Romance,0,1,Literatura,#8C2B2B,Romance e Realismo,
+categoria_antiga,2,Ficção Científica,1,1,Literatura,#8C2B2B,Ficção Científica,
+categoria_antiga,3,Fantasia,1,1,Literatura,#8C2B2B,Fantasia e Mitologia,
+categoria_antiga,4,Mistério,0,1,Literatura,#8C2B2B,Mistério Thriller e Terror,
+categoria_antiga,5,Thriller,1,1,Literatura,#8C2B2B,Mistério Thriller e Terror,
+categoria_antiga,6,Terror,1,1,Literatura,#8C2B2B,Mistério Thriller e Terror,
+categoria_antiga,7,Aventura,1,1,Literatura,#8C2B2B,Aventura e Distopia,
+categoria_antiga,8,Distopia,1,1,Literatura,#8C2B2B,Aventura e Distopia,
+categoria_antiga,9,Biografia,0,9,Biografias e Memórias,#3F6B7A,Biografia,
+categoria_antiga,10,Autobiografia,1,9,Biografias e Memórias,#3F6B7A,Autobiografia e Memórias,
+categoria_antiga,11,História,0,2,História e Sociedade,#6B4A3A,História Geral,
+categoria_antiga,12,Filosofia,2,5,Filosofia e Psicologia,#4A2545,Filosofia,
+categoria_antiga,13,Psicologia,0,5,Filosofia e Psicologia,#4A2545,Psicologia,
+categoria_antiga,14,Autoajuda,1,5,Filosofia e Psicologia,#4A2545,Autoajuda e Desenvolvimento Pessoal,
+categoria_antiga,15,Ciência,1,3,Ciências,#2F6B4F,Ciência Geral e Divulgação,
+categoria_antiga,16,Tecnologia,1,4,Computação e Tecnologia,#1E3D59,Tecnologia e Sociedade,
+categoria_antiga,17,Economia,1,7,Política e Economia,#9C4A1E,Economia,
+categoria_antiga,18,Política,0,7,Política e Economia,#9C4A1E,Política,
+categoria_antiga,19,Sociologia,0,2,História e Sociedade,#6B4A3A,Sociologia e Antropologia,
+categoria_antiga,20,Antropologia,0,2,História e Sociedade,#6B4A3A,Sociologia e Antropologia,
+categoria_antiga,21,Literatura Brasileira,0,1,Literatura,#8C2B2B,Literaturas Nacionais,
+categoria_antiga,22,Literatura Russa,0,1,Literatura,#8C2B2B,Literaturas Nacionais,
+categoria_antiga,23,Literatura Francesa,0,1,Literatura,#8C2B2B,Literaturas Nacionais,
+categoria_antiga,24,Literatura Inglesa,0,1,Literatura,#8C2B2B,Literaturas Nacionais,
+categoria_antiga,25,Literatura Americana,0,1,Literatura,#8C2B2B,Literaturas Nacionais,
+categoria_antiga,26,Poesia,0,1,Literatura,#8C2B2B,Poesia e Conto,
+categoria_antiga,27,Conto,1,1,Literatura,#8C2B2B,Poesia e Conto,
+categoria_antiga,28,Drama,0,1,Literatura,#8C2B2B,Crônica Ensaio e Sátira,
+categoria_antiga,29,Épico,1,1,Literatura,#8C2B2B,Crônica Ensaio e Sátira,
+categoria_antiga,30,Mitologia,1,1,Literatura,#8C2B2B,Fantasia e Mitologia,
+categoria_antiga,31,Religião,1,2,História e Sociedade,#6B4A3A,Religião e Espiritualidade,
+categoria_antiga,32,Espiritualidade,0,2,História e Sociedade,#6B4A3A,Religião e Espiritualidade,
+categoria_antiga,33,Arte,0,8,Quadrinhos e Artes,#7A2E5C,Artes Visuais,
+categoria_antiga,34,Arquitetura,0,8,Quadrinhos e Artes,#7A2E5C,Artes Visuais,
+categoria_antiga,35,Música,0,8,Quadrinhos e Artes,#7A2E5C,Música,
+categoria_antiga,36,Cinema,0,8,Quadrinhos e Artes,#7A2E5C,Cinema e Audiovisual,
+categoria_antiga,37,Fotografia,0,8,Quadrinhos e Artes,#7A2E5C,Artes Visuais,
+categoria_antiga,38,Culinária,0,8,Quadrinhos e Artes,#7A2E5C,Culinária e Viagem,
+categoria_antiga,39,Viagem,0,8,Quadrinhos e Artes,#7A2E5C,Culinária e Viagem,
+categoria_antiga,40,Natureza,0,3,Ciências,#2F6B4F,Natureza e Meio Ambiente,
+categoria_antiga,41,Matemática,0,3,Ciências,#2F6B4F,Matemática,
+categoria_antiga,42,Física,0,3,Ciências,#2F6B4F,Física e Astronomia,
+categoria_antiga,43,Química,0,3,Ciências,#2F6B4F,Química,
+categoria_antiga,44,Biologia,0,3,Ciências,#2F6B4F,Biologia e Evolução,
+categoria_antiga,45,Medicina,1,3,Ciências,#2F6B4F,Medicina e Saúde,
+categoria_antiga,46,Direito,0,7,Política e Economia,#9C4A1E,Direito,
+categoria_antiga,47,Educação,1,6,Educação e Pesquisa,#6E5A16,Educação,
+categoria_antiga,48,Linguística,0,6,Educação e Pesquisa,#6E5A16,Linguística e Comunicação,
+categoria_antiga,49,Jornalismo,0,6,Educação e Pesquisa,#6E5A16,Jornalismo,
+categoria_antiga,50,Humor,1,1,Literatura,#8C2B2B,Crônica Ensaio e Sátira,
+categoria_antiga,51,Romance,0,1,Literatura,#8C2B2B,Romance e Realismo,duplicada_de_1
+categoria_antiga,52,Ficção Científica,0,1,Literatura,#8C2B2B,Ficção Científica,duplicada_de_2
+categoria_antiga,53,Fantasia,0,1,Literatura,#8C2B2B,Fantasia e Mitologia,duplicada_de_3
+categoria_antiga,54,Mistério,0,1,Literatura,#8C2B2B,Mistério Thriller e Terror,duplicada_de_4
+categoria_antiga,55,Thriller,0,1,Literatura,#8C2B2B,Mistério Thriller e Terror,duplicada_de_5
+categoria_antiga,56,Terror,0,1,Literatura,#8C2B2B,Mistério Thriller e Terror,duplicada_de_6
+categoria_antiga,57,Aventura,0,1,Literatura,#8C2B2B,Aventura e Distopia,duplicada_de_7
+categoria_antiga,58,Distopia,0,1,Literatura,#8C2B2B,Aventura e Distopia,duplicada_de_8
+categoria_antiga,59,Biografia,0,9,Biografias e Memórias,#3F6B7A,Biografia,duplicada_de_9
+categoria_antiga,60,Autobiografia,0,9,Biografias e Memórias,#3F6B7A,Autobiografia e Memórias,duplicada_de_10
+categoria_antiga,61,História,0,2,História e Sociedade,#6B4A3A,História Geral,duplicada_de_11
+categoria_antiga,62,Filosofia,0,5,Filosofia e Psicologia,#4A2545,Filosofia,duplicada_de_12
+categoria_antiga,63,Psicologia,0,5,Filosofia e Psicologia,#4A2545,Psicologia,duplicada_de_13
+categoria_antiga,64,Autoajuda,0,5,Filosofia e Psicologia,#4A2545,Autoajuda e Desenvolvimento Pessoal,duplicada_de_14
+categoria_antiga,65,Ciência,0,3,Ciências,#2F6B4F,Ciência Geral e Divulgação,duplicada_de_15
+categoria_antiga,66,Tecnologia,0,4,Computação e Tecnologia,#1E3D59,Tecnologia e Sociedade,duplicada_de_16
+categoria_antiga,67,Economia,0,7,Política e Economia,#9C4A1E,Economia,duplicada_de_17
+categoria_antiga,68,Política,0,7,Política e Economia,#9C4A1E,Política,duplicada_de_18
+categoria_antiga,69,Sociologia,0,2,História e Sociedade,#6B4A3A,Sociologia e Antropologia,duplicada_de_19
+categoria_antiga,70,Antropologia,0,2,História e Sociedade,#6B4A3A,Sociologia e Antropologia,duplicada_de_20
+categoria_antiga,71,Literatura Brasileira,0,1,Literatura,#8C2B2B,Literaturas Nacionais,duplicada_de_21
+categoria_antiga,72,Literatura Russa,0,1,Literatura,#8C2B2B,Literaturas Nacionais,duplicada_de_22
+categoria_antiga,73,Literatura Francesa,0,1,Literatura,#8C2B2B,Literaturas Nacionais,duplicada_de_23
+categoria_antiga,74,Literatura Inglesa,0,1,Literatura,#8C2B2B,Literaturas Nacionais,duplicada_de_24
+categoria_antiga,75,Literatura Americana,0,1,Literatura,#8C2B2B,Literaturas Nacionais,duplicada_de_25
+categoria_antiga,76,Poesia,0,1,Literatura,#8C2B2B,Poesia e Conto,duplicada_de_26
+categoria_antiga,77,Conto,0,1,Literatura,#8C2B2B,Poesia e Conto,duplicada_de_27
+categoria_antiga,78,Drama,0,1,Literatura,#8C2B2B,Crônica Ensaio e Sátira,duplicada_de_28
+categoria_antiga,79,Épico,0,1,Literatura,#8C2B2B,Crônica Ensaio e Sátira,duplicada_de_29
+categoria_antiga,80,Mitologia,0,1,Literatura,#8C2B2B,Fantasia e Mitologia,duplicada_de_30
+categoria_antiga,81,Religião,0,2,História e Sociedade,#6B4A3A,Religião e Espiritualidade,duplicada_de_31
+categoria_antiga,82,Espiritualidade,0,2,História e Sociedade,#6B4A3A,Religião e Espiritualidade,duplicada_de_32
+categoria_antiga,83,Arte,0,8,Quadrinhos e Artes,#7A2E5C,Artes Visuais,duplicada_de_33
+categoria_antiga,84,Arquitetura,0,8,Quadrinhos e Artes,#7A2E5C,Artes Visuais,duplicada_de_34
+categoria_antiga,85,Música,0,8,Quadrinhos e Artes,#7A2E5C,Música,duplicada_de_35
+categoria_antiga,86,Cinema,0,8,Quadrinhos e Artes,#7A2E5C,Cinema e Audiovisual,duplicada_de_36
+categoria_antiga,87,Fotografia,0,8,Quadrinhos e Artes,#7A2E5C,Artes Visuais,duplicada_de_37
+categoria_antiga,88,Culinária,0,8,Quadrinhos e Artes,#7A2E5C,Culinária e Viagem,duplicada_de_38
+categoria_antiga,89,Viagem,0,8,Quadrinhos e Artes,#7A2E5C,Culinária e Viagem,duplicada_de_39
+categoria_antiga,90,Natureza,0,3,Ciências,#2F6B4F,Natureza e Meio Ambiente,duplicada_de_40
+categoria_antiga,91,Matemática,0,3,Ciências,#2F6B4F,Matemática,duplicada_de_41
+categoria_antiga,92,Física,0,3,Ciências,#2F6B4F,Física e Astronomia,duplicada_de_42
+categoria_antiga,93,Química,0,3,Ciências,#2F6B4F,Química,duplicada_de_43
+categoria_antiga,94,Biologia,0,3,Ciências,#2F6B4F,Biologia e Evolução,duplicada_de_44
+categoria_antiga,95,Medicina,0,3,Ciências,#2F6B4F,Medicina e Saúde,duplicada_de_45
+categoria_antiga,96,Direito,0,7,Política e Economia,#9C4A1E,Direito,duplicada_de_46
+categoria_antiga,97,Educação,0,6,Educação e Pesquisa,#6E5A16,Educação,duplicada_de_47
+categoria_antiga,98,Linguística,0,6,Educação e Pesquisa,#6E5A16,Linguística e Comunicação,duplicada_de_48
+categoria_antiga,99,Jornalismo,0,6,Educação e Pesquisa,#6E5A16,Jornalismo,duplicada_de_49
+categoria_antiga,100,Humor,0,1,Literatura,#8C2B2B,Crônica Ensaio e Sátira,duplicada_de_50
+categoria_antiga,101,Geografia,0,2,História e Sociedade,#6B4A3A,Geografia,
+categoria_antiga,102,Programação,0,4,Computação e Tecnologia,#1E3D59,Programação,
+categoria_antiga,103,Algoritmos,0,4,Computação e Tecnologia,#1E3D59,Programação,
+categoria_antiga,104,Engenharia de Software,0,4,Computação e Tecnologia,#1E3D59,Engenharia de Software,
+categoria_antiga,105,Redes de Computadores,0,4,Computação e Tecnologia,#1E3D59,Redes e Sistemas,
+categoria_antiga,106,Banco de Dados,0,4,Computação e Tecnologia,#1E3D59,Banco de Dados,
+categoria_antiga,107,Padrões de Projeto,0,4,Computação e Tecnologia,#1E3D59,Engenharia de Software,
+categoria_antiga,108,Sistemas de Informação,0,4,Computação e Tecnologia,#1E3D59,Banco de Dados,
+categoria_antiga,109,Carreira em Tecnologia,0,4,Computação e Tecnologia,#1E3D59,Tecnologia e Sociedade,
+categoria_antiga,110,Arquitetura de Software,0,4,Computação e Tecnologia,#1E3D59,Engenharia de Software,
+categoria_antiga,111,Space Opera,0,1,Literatura,#8C2B2B,Ficção Científica,
+categoria_antiga,112,Astronomia,0,3,Ciências,#2F6B4F,Física e Astronomia,
+categoria_antiga,113,Divulgação Científica,0,3,Ciências,#2F6B4F,Ciência Geral e Divulgação,
+categoria_antiga,114,Filosofia da Ciência,0,5,Filosofia e Psicologia,#4A2545,Filosofia,
+categoria_antiga,115,Cosmologia,0,3,Ciências,#2F6B4F,Física e Astronomia,
+categoria_antiga,116,Psicologia Existencial,0,5,Filosofia e Psicologia,#4A2545,Psicologia,
+categoria_antiga,117,Realismo,0,1,Literatura,#8C2B2B,Romance e Realismo,
+categoria_antiga,118,Fábula,0,10,Infantojuvenil,#8C6B2B,Contos e Fábulas,
+categoria_antiga,119,Romance Social,0,1,Literatura,#8C2B2B,Romance e Realismo,
+categoria_antiga,120,Modernismo,0,1,Literatura,#8C2B2B,Romance e Realismo,
+categoria_antiga,121,Regionalismo,0,1,Literatura,#8C2B2B,Romance e Realismo,
+categoria_antiga,122,Naturalismo,0,1,Literatura,#8C2B2B,Romance e Realismo,
+categoria_antiga,123,Romantismo,0,1,Literatura,#8C2B2B,Romance e Realismo,
+categoria_antiga,124,Sátira Política,0,1,Literatura,#8C2B2B,Crônica Ensaio e Sátira,
+categoria_antiga,125,Ciência Política,0,7,Política e Economia,#9C4A1E,Política,
+categoria_antiga,126,Quadrinhos,0,8,Quadrinhos e Artes,#7A2E5C,Quadrinhos,
+categoria_antiga,127,Diário,0,9,Biografias e Memórias,#3F6B7A,Diário e Cartas,
+categoria_antiga,128,História do Brasil,0,2,História e Sociedade,#6B4A3A,História do Brasil,
+categoria_antiga,129,Metodologia Científica,0,6,Educação e Pesquisa,#6E5A16,Metodologia Científica,
+livro_sem_categoria,151,Sapiens: Uma Breve Historia da Humanidade,1,2,História e Sociedade,#6B4A3A,História Geral,sugestao_nova
+livro_sem_categoria,152,Dom Casmurro,1,1,Literatura,#8C2B2B,Literaturas Nacionais,sugestao_nova
+livro_sem_categoria,153,Codigo Limpo,1,4,Computação e Tecnologia,#1E3D59,Programação,sugestao_nova
+livro_sem_categoria,154,Algoritmos: Teoria e Pratica,1,4,Computação e Tecnologia,#1E3D59,Programação,sugestao_nova
+livro_sem_categoria,155,Engenharia de Software,1,4,Computação e Tecnologia,#1E3D59,Engenharia de Software,sugestao_nova
+livro_sem_categoria,156,Redes de Computadores,1,4,Computação e Tecnologia,#1E3D59,Redes e Sistemas,sugestao_nova
+livro_sem_categoria,157,Sistemas de Banco de Dados,1,4,Computação e Tecnologia,#1E3D59,Banco de Dados,sugestao_nova
+livro_sem_categoria,158,Padroes de Projeto,1,4,Computação e Tecnologia,#1E3D59,Engenharia de Software,sugestao_nova
+livro_sem_categoria,159,Memorias Postumas de Bras Cubas,1,1,Literatura,#8C2B2B,Poesia e Conto,sugestao_nova
+livro_sem_categoria,160,Grande Sertao: Veredas,1,1,Literatura,#8C2B2B,Romance e Realismo,sugestao_nova
+livro_sem_categoria,161,O Pequeno Principe,1,10,Infantojuvenil,#8C6B2B,Literatura Infantil,sugestao_nova
+livro_sem_categoria,162,Vidas Secas,1,1,Literatura,#8C2B2B,Literaturas Nacionais,sugestao_nova
+livro_sem_categoria,163,A Hora da Estrela,1,1,Literatura,#8C2B2B,Literaturas Nacionais,sugestao_nova
+livro_sem_categoria,164,Sistema de Banco de Dados,1,4,Computação e Tecnologia,#1E3D59,Banco de Dados,sugestao_nova
+livro_sem_categoria,165,O Codificador Limpo,1,4,Computação e Tecnologia,#1E3D59,Programação,sugestao_nova
+livro_sem_categoria,166,Arquitetura Limpa,1,4,Computação e Tecnologia,#1E3D59,Engenharia de Software,sugestao_nova
+livro_sem_categoria,167,A Revolucao dos Bichos,1,10,Infantojuvenil,#8C6B2B,Literatura Infantil e Juvenil,sugestao_nova
+subcategoria_nova,,Infantojuvenil juvenile,0,10,Infantojuvenil,#8C6B2B,Jovem Adulto,sugestao_nova_sem_livros_hoje
+livro_sem_categoria,168,Duna,1,1,Literatura,#8C2B2B,Ficção Científica,sugestao_nova
+livro_sem_categoria,169,Uma Breve Historia do Tempo,1,3,Ciências,#2F6B4F,Física e Astronomia,sugestao_nova
+livro_sem_categoria,170,O Gene Egoista,1,3,Ciências,#2F6B4F,Biologia e Evolução,sugestao_nova
+livro_sem_categoria,171,Maus: A Historia de um Sobrevivente,1,8,Quadrinhos e Artes,#7A2E5C,Quadrinhos,sugestao_nova
+livro_sem_categoria,172,Rapido e Devagar: Duas Formas de Pensar,1,5,Filosofia e Psicologia,#4A2545,Psicologia,sugestao_nova
+livro_sem_categoria,173,Casa-Grande e Senzala,1,2,História e Sociedade,#6B4A3A,Sociologia e Antropologia,sugestao_nova
+livro_sem_categoria,174,Quarto de Despejo: Diario de uma Favelada,1,9,Biografias e Memórias,#3F6B7A,Autobiografia e Memórias,sugestao_nova
+livro_sem_categoria,175,Raizes do Brasil,1,2,História e Sociedade,#6B4A3A,História do Brasil,sugestao_nova
+livro_sem_categoria,176,Fundamentos de Metodologia Cientifica,1,6,Educação e Pesquisa,#6E5A16,Metodologia Científica,sugestao_nova
+livro_sem_categoria,177,Palido Ponto Azul,1,3,Ciências,#2F6B4F,Física e Astronomia,sugestao_nova
+livro_sem_categoria,178,Variedades da Experiencia Cientifica,1,3,Ciências,#2F6B4F,Ciência Geral e Divulgação,sugestao_nova
+livro_sem_categoria,179,O Universo numa Casca de Noz,1,3,Ciências,#2F6B4F,Física e Astronomia,sugestao_nova
+livro_sem_categoria,180,Em Busca de Sentido,1,5,Filosofia e Psicologia,#4A2545,Psicologia,sugestao_nova
+livro_sem_categoria,181,Iracema,1,1,Literatura,#8C2B2B,Literaturas Nacionais,sugestao_nova
+livro_sem_categoria,182,O Cortico,1,1,Literatura,#8C2B2B,Romance e Realismo,sugestao_nova
+livro_sem_categoria,183,O Principe,1,7,Política e Economia,#9C4A1E,Política,sugestao_nova

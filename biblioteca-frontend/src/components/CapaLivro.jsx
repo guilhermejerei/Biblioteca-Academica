@@ -28,6 +28,23 @@ function obterPaleta(titulo = '') {
   return PALETAS[Math.abs(hash) % PALETAS.length]
 }
 
+/**
+ * Escurece uma cor da área para o degradê da capa.
+ *
+ * A capa desenhada vai da cor da área a uma versão mais escura dela. Se
+ * usasse a mesma nos dois pontos, o degradê sumiria e a capa viraria um bloco
+ * chapado — o mesmo defeito que a pilha tinha antes de ganhar fatias.
+ */
+function escurecer(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex)
+  if (!m) return hex
+  const n = parseInt(m[1], 16)
+  const r = Math.round(((n >> 16) & 0xff) * 0.62)
+  const g = Math.round(((n >> 8) & 0xff) * 0.62)
+  const b = Math.round((n & 0xff) * 0.62)
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
+}
+
 export default function CapaLivro({
   livro,
   urlCapa: propUrlCapa,
@@ -35,6 +52,7 @@ export default function CapaLivro({
   autor: propAutor,
   ano: propAno,
   categoria: propCategoria,
+  cor: propCor,
   className = '',
   style = {}
 }) {
@@ -49,6 +67,11 @@ export default function CapaLivro({
   const urlCapa = livro?.urlCapa ?? propUrlCapa ?? null
 
   const paleta = useMemo(() => obterPaleta(titulo), [titulo])
+
+  // A cor da área da categoria principal, quando existe. A capa desenhada usa
+  // essa cor em vez da paleta por hash do título: assim dois livros da mesma
+  // área saem da mesma cor, que é o que faz a estante parecer organizada.
+  const corDaArea = propCor ?? livro?.categoriaPrincipal?.categoriaPai?.cor ?? null
 
   // Normaliza URL da capa: sempre servida pelo backend da biblioteca
   const urlCompleta = useMemo(() => {
@@ -85,7 +108,9 @@ export default function CapaLivro({
         <div
           className="capa-desenhada"
           style={{
-            background: `linear-gradient(145deg, ${paleta.de} 0%, ${paleta.para} 100%)`
+            background: corDaArea
+              ? `linear-gradient(145deg, ${corDaArea} 0%, ${escurecer(corDaArea)} 100%)`
+              : `linear-gradient(145deg, ${paleta.de} 0%, ${paleta.para} 100%)`,
           }}
           aria-label={`Capa estilizada: ${titulo}`}
         >

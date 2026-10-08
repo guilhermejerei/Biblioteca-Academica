@@ -1,5 +1,8 @@
 package com.biblioteca.controller;
 
+import com.biblioteca.dto.ArvoreCategorias;
+import com.biblioteca.dto.FiltroAcervo;
+import com.biblioteca.dto.FiltroCategoria;
 import com.biblioteca.model.Categoria;
 import com.biblioteca.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categorias")
@@ -16,11 +20,53 @@ public class CategoriaController {
     @Autowired
     private CategoriaService categoriaService;
 
+    @Autowired
+    private com.biblioteca.service.LivroBuscaService buscaService;
+
+    /**
+     * Os ids de área e de subcategoria existentes, para validar o que chega
+     * pela URL. Um id desconhecido é descartado em silêncio em vez de derrubar
+     * a requisição — link antigo e categoria apagada não podem quebrar a página.
+     */
+    @GetMapping("/ids")
+    public ResponseEntity<?> ids() {
+        return ResponseEntity.ok(Map.of(
+                "areas", buscaService.idsDeAreas(),
+                "subcategorias", buscaService.idsDeSubcategorias()));
+    }
+
     // GET /api/categorias — lista todas as categorias
     @GetMapping
     public ResponseEntity<List<Categoria>> listarTodos() {
         List<Categoria> categorias = categoriaService.listarTodos();
         return ResponseEntity.ok(categorias);
+    }
+
+    /**
+     * GET /api/categorias/arvore — as áreas na ordem fixa, com as subcategorias,
+     * a cor e as contagens.
+     *
+     * Precisa vir antes de /{id} no mapeamento, senão "arvore" seria lido como id.
+     *
+     * Quem não é bibliotecário não vê as categorias sem livro nenhum: uma pilha
+     * com zero não tem o que oferecer e só polui a fileira.
+     */
+    @GetMapping("/arvore")
+    public ResponseEntity<ArvoreCategorias> arvore(
+            @RequestParam(required = false) List<Long> cat,
+            @RequestParam(required = false) List<Long> area,
+            @RequestParam(required = false) String modo,
+            @RequestParam(required = false) String texto,
+            @RequestParam(required = false) Long autor,
+            @RequestParam(required = false) String epoca,
+            @RequestParam(required = false) Boolean disponiveis,
+            @RequestAttribute(value = "usuarioTipo", required = false) String usuarioTipo) {
+
+        boolean bibliotecario = "BIBLIOTECARIO".equals(usuarioTipo);
+        FiltroCategoria filtroCat = Filtros.categorias(cat, area, modo, buscaService);
+        FiltroAcervo acervo = Filtros.acervo(texto, autor, epoca, disponiveis);
+
+        return ResponseEntity.ok(buscaService.arvore(bibliotecario, filtroCat, acervo));
     }
 
     // GET /api/categorias/{id} — busca categoria por ID

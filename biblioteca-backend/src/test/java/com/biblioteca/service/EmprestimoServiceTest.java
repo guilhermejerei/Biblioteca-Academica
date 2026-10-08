@@ -62,7 +62,8 @@ class EmprestimoServiceTest {
         livro.setQuantidadeTotal(3);
         livro.setQuantidadeDisponivel(3);
         livro.setAutor(autor);
-        livro.setCategorias(new java.util.LinkedHashSet<>(java.util.Set.of(categoria)));
+        livro.setLivroCategorias(java.util.List.of(
+                new com.biblioteca.model.LivroCategoria(categoria, true)));
     }
 
     // ── Caso 1: Empréstimo de livro disponível diminui o estoque em 1 ──────────

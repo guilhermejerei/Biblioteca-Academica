@@ -19,6 +19,22 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
     List<Livro> findByCapaStatus(CapaStatus capaStatus);
 
     /**
+     * Os livros de uma página, com autor e categorias em uma consulta só.
+     *
+     * Um findAllById comum trazia o autor e as categorias preguiçosamente, e o
+     * Hibernate ia buscar um por um ao serializar: com 24 livros na página eram
+     * 48 consultas a mais por requisição. O EntityGraph resolve tudo num JOIN,
+     * o que é seguro aqui porque a página é pequena e limitada.
+     */
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {
+            "autor",
+            "livroCategorias",
+            "livroCategorias.categoria",
+            "livroCategorias.categoria.categoriaPai"
+    })
+    List<Livro> findByIdIn(List<Long> ids);
+
+    /**
      * Decrementa quantidade_disponivel de forma atômica e condicional:
      * só atua se disponivel > 0. Retorna o número de linhas afetadas (0 ou 1).
      * Usado para evitar race condition em empréstimos simultâneos.

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSom } from '../context/SomContext'
 import Modal from './Modal'
 import CapaLivro from './CapaLivro'
 import { buscarLivros } from '../api/livros'
@@ -76,6 +77,7 @@ export default function NovoEmprestimo({ onFechar, onConcluido }) {
   const [erro, setErro]     = useState('')
   const [salvando, setSalvando] = useState(false)
   const buscaRef = useRef(null)
+  const { tocar } = useSom()
 
   // ── Etapa 1: livros ───────────────────────────────────────
 
@@ -118,6 +120,7 @@ export default function NovoEmprestimo({ onFechar, onConcluido }) {
 
   function escolherLivro(l) {
     if (!l.quantidadeDisponivel) return
+    tocar('click')
     setLivro(l)
     setLivroIndisponivel('')
     setErro('')
@@ -125,6 +128,7 @@ export default function NovoEmprestimo({ onFechar, onConcluido }) {
 
   function irParaPessoa() {
     setErro('')
+    tocar('navigate')
     setEtapa(2)
     // O foco vai para a busca da pessoa: sem isso o foco fica no botão que
     // sumiu e o teclado perde o lugar.
@@ -132,6 +136,7 @@ export default function NovoEmprestimo({ onFechar, onConcluido }) {
   }
 
   function voltarAoLivro() {
+    tocar('navigate')
     setEtapa(1)
     setPessoa(null)
     setErro('')
@@ -151,11 +156,12 @@ export default function NovoEmprestimo({ onFechar, onConcluido }) {
     setSalvando(true)
     try {
       await realizarEmprestimo(pessoa.id, livro.id, prazo)
+      tocar('confirm')
       onConcluido?.()
     } catch (err) {
       const status = err.response?.status
       const msg = err.response?.data?.erro || 'Não foi possível registrar o empréstimo.'
-
+      tocar('error')
       // 409 é estoque. Outro bibliotecário levou o último exemplar entre a
       // busca e o clique. O formulário antigo FECHAVA o modal e mostrava um
       // aviso, jogando fora livro, pessoa e prazo já escolhidos; aqui o

@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react'
 import { AuthProvider } from './context/AuthContext'
 import { DialogoProvider } from './context/DialogoContext'
 import { SincronizacaoProvider } from './context/SincronizacaoContext'
+import { SomProvider } from './context/SomContext'
 import { RotaProtegida, RotaBibliotecario } from './components/RotaProtegida'
 import Navbar from './components/Navbar'
 import GrainyBackground from './components/GrainyBackground'
@@ -31,6 +32,7 @@ function FundoPublico() {
 
 export default function App() {
   return (
+    <SomProvider>
     <AuthProvider>
       <DialogoProvider>
         <SincronizacaoProvider>
@@ -76,6 +78,7 @@ export default function App() {
         </SincronizacaoProvider>
       </DialogoProvider>
     </AuthProvider>
+    </SomProvider>
   )
 }
 

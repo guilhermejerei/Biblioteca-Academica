@@ -8,6 +8,7 @@ import Paginacao from '../components/Paginacao'
 import FiltroPilhas from '../components/FiltroPilhas'
 import { useAuth } from '../context/AuthContext'
 import { useDialogo } from '../context/DialogoContext'
+import { useSom } from '../context/SomContext'
 import {
   listarLivros,
   buscarLivros,
@@ -323,6 +324,7 @@ function CardLivro({ livro, onSolicitar }) {
 export default function Livros() {
   const { isBibliotecario } = useAuth()
   const { alertar, confirmar } = useDialogo()
+  const { tocar } = useSom()
   const { sincronizar, status: sincStatus } = useSincronizacao()
   const ehBibliotecario = isBibliotecario()
 
@@ -753,6 +755,7 @@ const categoriasAgrupadas = useMemo(() => {
     const drawerAberto = modalAberto || modalRevisaoAberto
 
     function fecharDrawer() {
+      tocar('toggle')
       setModalAberto(false)
       setModalRevisaoAberto(false)
       setErro('')
@@ -791,6 +794,7 @@ const categoriasAgrupadas = useMemo(() => {
                 </button>
               )}
               <button className="btn-primario" onClick={() => {
+                tocar('toggle')
                 setLivroEditando(null)
                 setValores({ titulo: '', isbn: '', anoPublicacao: '', quantidadeTotal: '', autorId: '', categoriaIds: [] })
                 setErro('')
@@ -850,6 +854,7 @@ const categoriasAgrupadas = useMemo(() => {
                       <p className="livro-card-autor">{livro.autor?.nome ?? '—'}</p>
                       <div className="livro-card-rodape">
                         <button className="btn-editar-card" onClick={() => {
+                          tocar('toggle')
                           setLivroEditando(livro)
                           setValores({
                             titulo: livro.titulo,
@@ -871,7 +876,7 @@ const categoriasAgrupadas = useMemo(() => {
                         <button className="btn-excluir-card" onClick={async () => {
                           const ok = await confirmar('Excluir este livro?', 'Excluir livro')
                           if (!ok) return
-                          try { await excluirLivro(livro.id); carregar() }
+                          try { await excluirLivro(livro.id); tocar('delete'); carregar() }
                           catch (err) { await alertar(err.response?.data?.erro || 'Não foi possível excluir.', 'erro') }
                         }}>Excluir</button>
                       </div>
@@ -954,6 +959,7 @@ const categoriasAgrupadas = useMemo(() => {
                         try {
                           if (livroEditando) await atualizarLivro(livroEditando.id, payload)
                           else await cadastrarLivro(payload)
+                          tocar('success')
                           fecharDrawer(); carregar()
                         } catch (err) {
                           setErro(err.response?.data?.erro || err.message || 'Erro ao salvar livro.')

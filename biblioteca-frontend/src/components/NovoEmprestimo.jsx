@@ -53,6 +53,7 @@ export default function NovoEmprestimo({ onFechar, onConcluido }) {
   const [etapa, setEtapa] = useState(1)
 
   const [buscaLivro, setBuscaLivro]     = useState('')
+  const [buscaDebounced, setBuscaDebounced] = useState('')
   const [resultados, setResultados]     = useState([])
   const [buscandoLivro, setBuscandoLivro] = useState(true)
   /**
@@ -79,14 +80,19 @@ export default function NovoEmprestimo({ onFechar, onConcluido }) {
   // ── Etapa 1: livros ───────────────────────────────────────
 
   useEffect(() => {
+    const id = setTimeout(() => setBuscaDebounced(buscaLivro), 300)
+    return () => clearTimeout(id)
+  }, [buscaLivro])
+
+  useEffect(() => {
     let cancelado = false
     setBuscandoLivro(true)
-    buscarLivros({ texto: buscaLivro, pagina: 1, tamanho: TAMANHO_BUSCA })
+    buscarLivros({ texto: buscaDebounced, pagina: 1, tamanho: TAMANHO_BUSCA })
       .then(r => { if (!cancelado) setResultados(r.itens ?? []) })
       .catch(() => { if (!cancelado) setResultados([]) })
       .finally(() => { if (!cancelado) setBuscandoLivro(false) })
     return () => { cancelado = true }
-  }, [buscaLivro, recarregarLivros])
+  }, [buscaDebounced, recarregarLivros])
 
   // ── Etapa 2: pessoas ──────────────────────────────────────
 

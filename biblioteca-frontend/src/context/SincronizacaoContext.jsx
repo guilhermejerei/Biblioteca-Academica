@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 import { sincronizarCapas } from '../api/livros'
+import { useSom } from './SomContext'
 import './SincronizacaoContext.css'
 
 const SincronizacaoContext = createContext(null)
@@ -9,6 +10,7 @@ export function SincronizacaoProvider({ children }) {
   const [resultado, setResultado] = useState(null)
   const [mensagemErro, setMensagemErro] = useState('')
   const timerRef = useRef(null)
+  const { tocar } = useSom()
 
   // Dispara a sincronização — pode ser chamado de qualquer página
   const sincronizar = useCallback(async () => {
@@ -36,6 +38,12 @@ export function SincronizacaoProvider({ children }) {
 
   // Limpa timer ao desmontar
   useEffect(() => () => clearTimeout(timerRef.current), [])
+
+  // Toca sons ao mudar status
+  useEffect(() => {
+    if (status === 'concluido') tocar('success')
+    else if (status === 'erro') tocar('error')
+  }, [status]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const visivel = status !== 'idle'
 

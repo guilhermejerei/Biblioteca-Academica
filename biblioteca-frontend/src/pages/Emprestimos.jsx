@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSom } from '../context/SomContext'
 import Modal from '../components/Modal'
 import Formulario from '../components/Formulario'
 import NovoEmprestimo from '../components/NovoEmprestimo'
@@ -88,6 +89,7 @@ import Tabela from '../components/Tabela'
 
 export default function Emprestimos() {
   const { alertar, confirmar } = useDialogo()
+  const { tocar } = useSom()
 
   const [emprestimos, setEmprestimos] = useState([])
   const [filtro,      setFiltro]      = useState('todos')
@@ -122,8 +124,8 @@ export default function Emprestimos() {
       info: 'A nova data deve ser hoje ou posterior. Não é possível retroagir o prazo.' }
   ]
 
-  function abrirModal() { setModalAberto(true) }
-  function fecharModal() { setModalAberto(false); setErro('') }
+  function abrirModal() { tocar('toggle'); setModalAberto(true) }
+  function fecharModal() { tocar('toggle'); setModalAberto(false); setErro('') }
   function abrirModalPrazo(emp) {
     setEmprestimoSelecionado(emp)
     setValorPrazo({ novaDataPrevista: emp.dataPrevistaDevolucao ?? '' })
@@ -144,7 +146,7 @@ export default function Emprestimos() {
   async function handleDevolver(id) {
     const ok = await confirmar('Confirmar devolução deste empréstimo?', 'Registrar devolução')
     if (!ok) return
-    try { await registrarDevolucao(id); carregar() }
+    try { await registrarDevolucao(id); tocar('success'); carregar() }
     catch (err) { await alertar(err.response?.data?.erro || 'Não foi possível registrar a devolução.', 'erro') }
   }
 

@@ -73,6 +73,38 @@
   transform: translateY(0) scale(0.99);
 }
 
+/* Botão secundário — o par de .btn-primario.
+   Casou com o mesmo tamanho e alinhamento para os dois ficarem lado a lado
+   sem um parecer maior que o outro. */
+.btn-secundario {
+  padding: 0.52rem 1.2rem;
+  background: #fff;
+  color: var(--marrom-apoio);
+  border: 1px solid var(--bege-medio);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, border-color 0.16s;
+  white-space: nowrap;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn-secundario:hover {
+  background: var(--off-white);
+  color: var(--marrom-escuro);
+  border-color: var(--marrom-apoio);
+}
+
+.btn-secundario:active {
+  background: var(--bege);
+}
+
 /* ── Botões da tabela ────────────────────────── */
 .btn-editar {
   padding: 0.26rem 0.8rem;

@@ -86,6 +86,18 @@
   padding: 1.5rem;
   overflow-y: auto;
   flex: 1;
+  /* Sem min-height: 0 um item flex não encolhe abaixo do próprio conteúdo, o
+     corpo cresce além do modal e o overflow nunca é acionado: o conteúdo
+     simplesmente some pela borda de baixo, sem rolagem. */
+  min-height: 0;
+}
+
+/* Modal largo, para o que precisa de mais de uma coluna: a lista de livros
+   com capa na tela de empréstimo, por exemplo. */
+.modal-box--largo { max-width: 760px; }
+
+@media (max-width: 760px) {
+  .modal-box--largo { max-width: 100%; }
 }
 
 @media (max-width: 480px) {

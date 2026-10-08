@@ -42,9 +42,25 @@ export async function buscarCategoriaPorId(id) {
   return res.data
 }
 
+/**
+ * Cria uma área ou uma subcategoria.
+ *
+ * Qual dos dois depende do que o corpo traz:
+ *   { nome, cor, ordemExibicao }                    → ÁREA
+ *   { nome, categoriaPai: { id } }                  → SUBCATEGORIA
+ *
+ * Sem `categoriaPai` nem `cor` a API recusa: a categoria nasceria órfã,
+ * invisível para o filtro em pilhas.
+ */
 export async function cadastrarCategoria(categoria) {
   const res = await api.post('/categorias', categoria)
   return res.data
+}
+
+/** A próxima ordem livre de área, para o formulário já vir preenchido. */
+export async function proximaOrdemArea() {
+  const res = await api.get('/categorias/proxima-ordem')
+  return res.data.ordem
 }
 
 export async function atualizarCategoria(id, categoria) {

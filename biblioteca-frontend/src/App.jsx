@@ -5,6 +5,7 @@ import { SincronizacaoProvider } from './context/SincronizacaoContext'
 import { RotaProtegida, RotaBibliotecario } from './components/RotaProtegida'
 import Navbar from './components/Navbar'
 import GrainyBackground from './components/GrainyBackground'
+import CursorDot from './components/CursorDot'
 
 // Páginas públicas
 import Login    from './pages/Login'
@@ -35,6 +36,11 @@ export default function App() {
         <BrowserRouter>
           {/* Fundo fixo — renderizado fora de qualquer container de conteúdo */}
           <FundoPublico />
+
+          {/* Cursor de ponto. Fica aqui, acima das rotas, para valer também nas
+              telas de login e cadastro — que é onde não há navbar segurando o
+              resto da tela. */}
+          <CursorDot />
 
           <Routes>
             {/* Rotas públicas — sem Navbar */}

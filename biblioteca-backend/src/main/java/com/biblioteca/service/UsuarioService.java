@@ -1,13 +1,18 @@
 package com.biblioteca.service;
 
 import com.biblioteca.dto.UsuarioDTO;
+import com.biblioteca.dto.UsuarioParaEmprestimo;
 import com.biblioteca.model.Usuario;
 import com.biblioteca.model.Usuario.TipoUsuario;
+import com.biblioteca.repository.EmprestimoRepository;
 import com.biblioteca.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,6 +21,9 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private EmprestimoRepository emprestimoRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -33,6 +41,41 @@ public class UsuarioService {
         return usuarioRepository.findAll()
                 .stream()
                 .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Quem pode levar livro, no formato enxuto da tela de empr��stimo.
+     *
+     * S�� o nome e o que a pessoa j�� tem em aberto. CPF n��o entra: o
+     * bibliotec��rio tem o cart��o na m��o e escolhe pelo nome, e uma lista de
+     * onze d��gitos ao lado de cada um s�� rouba largura e obriga a ler n��mero
+     * para achar o nome.
+     */
+    @Transactional(readOnly = true)
+    public List<UsuarioParaEmprestimo> listarParaEmprestimo() {
+        // Duas consultas, e o cruzamento é feito aqui. Filtrar a coleção de
+        // empréstimos direto no WHERE do fetch tentado antes e um erro
+        // silencioso: num LEFT JOIN FETCH a condição "status IN (ATIVO,
+        // ATRASADO)" descarta a PESSOA inteira quando todos os empréstimos
+        // dela já foram devolvidos, em vez de devolver a pessoa com a lista
+        // vazia. Aluno que devolveu tudo sumia do balcão.
+        Map<Long, List<UsuarioParaEmprestimo.EmprestoAberto>> abertosPorUsuario =
+                emprestimoRepository.listarAbertosComLivro().stream()
+                        .filter(e -> e.getUsuario() != null)
+                        .collect(Collectors.groupingBy(
+                                e -> e.getUsuario().getId(),
+                                Collectors.mapping(
+                                        e -> new UsuarioParaEmprestimo.EmprestoAberto(
+                                                e.getId(),
+                                                e.getLivro() != null ? e.getLivro().getTitulo() : "(sem título)",
+                                                e.getStatus() != null ? e.getStatus().name() : null),
+                                        Collectors.toList())));
+
+        return usuarioRepository.listarAlunos().stream()
+                .map(u -> new UsuarioParaEmprestimo(
+                        u.getId(), u.getNome(),
+                        abertosPorUsuario.getOrDefault(u.getId(), List.of())))
                 .collect(Collectors.toList());
     }
 

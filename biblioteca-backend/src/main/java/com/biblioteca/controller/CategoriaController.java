@@ -77,32 +77,54 @@ public class CategoriaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // POST /api/categorias — cadastra nova categoria
+    /**
+     * POST /api/categorias — cria uma área ou uma subcategoria.
+     *
+     * Qual dos dois depende do corpo: sem `categoriaPai` nasce uma ÁREA, que
+     * exige cor e define a ordem das pilhas; com `categoriaPai` nasce uma
+     * SUBCATEGORIA, ligada àquela área.
+     *
+     * Sem nenhum dos dois campos a categoria nasceria órfã — invisível para o
+     * filtro em pilhas — e por isso o serviço recusa com mensagem explicando.
+     */
     @PostMapping
     public ResponseEntity<Categoria> cadastrar(@RequestBody Categoria categoria) {
         Categoria novaCategoria = categoriaService.salvar(categoria);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaCategoria);
     }
 
-    // PUT /api/categorias/{id} — atualiza categoria existente
-    @PutMapping("/{id}")
-    public ResponseEntity<Categoria> atualizar(@PathVariable Long id, @RequestBody Categoria categoria) {
-        try {
-            Categoria categoriaAtualizada = categoriaService.atualizar(id, categoria);
-            return ResponseEntity.ok(categoriaAtualizada);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    /** A próxima ordem livre de área, para o formulário já vir preenchido. */
+    @GetMapping("/proxima-ordem")
+    public ResponseEntity<Map<String, Integer>> proximaOrdem() {
+        return ResponseEntity.ok(Map.of("ordem", categoriaService.proximaOrdem()));
     }
 
-    // DELETE /api/categorias/{id} — exclui categoria
+    /**
+     * PUT /api/categorias/{id} — renomeia, troca a cor e a ordem de uma área,
+     * ou move uma subcategoria de área.
+     *
+     * Os erros não são mais capturados aqui: NegocioException sobe até o
+     * GlobalExceptionHandler, que devolve 400 com a mensagem em português. Com o
+     * try/catch antigo, tanto "categoria duplicada" quanto "área não encontrada"
+     * viravam 404 sem corpo, e a tela não tinha o que mostrar.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Categoria> atualizar(
+            @PathVariable Long id, @RequestBody Categoria categoria) {
+        return ResponseEntity.ok(categoriaService.atualizar(id, categoria));
+    }
+
+    /**
+     * DELETE /api/categorias/{id} — exclui, recusando com a contagem quando a
+     * categoria ainda está em uso.
+     *
+     * A contagem importa: sem ela, apagar uma área com filhas batia no índice
+     * estrangeiro do banco e o usuário recebia um 404 mudo, sem ideia do que
+     * soltar primeiro.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        try {
-            categoriaService.excluir(id);
-            return ResponseEntity.noContent().build(); // 204
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        categoriaService.excluir(id);
+        return ResponseEntity.noContent().build(); // 204
     }
 }

@@ -43,6 +43,22 @@
 /* ══════════════════════════════════════
    Reset
    ══════════════════════════════════════ */
+/* Texto que existe só para leitor de tela.
+   Vive aqui e não num CSS de componente: é usado por vários lugares e, quando
+   morava dentro do FiltroPilhas.css, só existia se aquele componente estivesse
+   na tela — o resto do site usava a classe e não recebia nada. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;

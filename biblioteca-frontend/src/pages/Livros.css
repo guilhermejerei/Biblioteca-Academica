@@ -1102,6 +1102,14 @@
 .bib-drawer-corpo {
   padding: 1.4rem;
   flex: 1;
+  /*
+    min-height: 0 é obrigatório, não cosmetics: sem ele um item flex não
+    encolhe abaixo do tamanho do próprio conteúdo, o corpo cresce além do
+    drawer e o overflow-y nunca chega a ser acionado. O efeito é o conteúdo
+    simplesmente sumir pela borda de baixo — no formulário de categoria, os
+    botões de criar e cancelar ficavam fora da tela sem rolagem nenhuma.
+  */
+  min-height: 0;
   overflow-y: auto;
 }
 

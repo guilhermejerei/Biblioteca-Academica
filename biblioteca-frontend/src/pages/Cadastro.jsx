@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { register } from '../api/auth'
+import IconeBiblioteca from '../assets/icones/IconeBiblioteca'
 import './Auth.css'
 
 const VALORES_INICIAIS = {
@@ -48,14 +49,11 @@ export default function Cadastro() {
       {/* ── Painel esquerdo — formulário ─────────────────── */}
       <div className="auth-panel">
 
-        {/* Marca */}
+        {/* Marca — o mesmo ícone do site, não uma sigla */}
         <div className="auth-marca">
-          <div className="auth-marca-sigla" aria-hidden="true">
-            <svg viewBox="0 0 18 18" fill="none">
-              <path d="M4 2h6a3.5 3.5 0 0 1 0 7H4V2Z" fill="currentColor" opacity=".9"/>
-              <path d="M4 9h6.5a3.5 3.5 0 0 1 0 7H4V9Z" fill="currentColor"/>
-            </svg>
-          </div>
+          <span className="auth-marca-sigla">
+            <IconeBiblioteca size={36} semRotulo />
+          </span>
           <span className="auth-marca-nome">Biblioteca</span>
         </div>
 

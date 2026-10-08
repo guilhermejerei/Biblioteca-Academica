@@ -1,0 +1,570 @@
+/* ══════════════════════════════════════════════
+   Novo empréstimo, em duas etapas
+   ══════════════════════════════════════════════ */
+
+/* ── Trilha das etapas ───────────────────────── */
+
+.emp-trilha {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0;
+}
+
+/* Uma linha fina ligando os dois passos: mostra a ordem sem gastar
+   espaço com setas ou setas grandes. */
+.emp-trilha-passo {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--marrom-apoio);
+  padding: 0.3rem 0.6rem 0.3rem 0.35rem;
+  position: relative;
+}
+
+.emp-trilha-passo + .emp-trilha-passo::before {
+  content: '';
+  width: 1.4rem;
+  height: 1px;
+  background: var(--bege-medio);
+  margin-right: 0.2rem;
+}
+
+.emp-trilha-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: var(--off-white);
+  border: 1px solid var(--bege);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--marrom-apoio);
+  flex-shrink: 0;
+}
+
+.emp-trilha-passo.ativo { color: var(--marrom-escuro); font-weight: 600; }
+.emp-trilha-passo.ativo .emp-trilha-num {
+  background: var(--vinho);
+  border-color: var(--vinho);
+  color: #fff;
+}
+
+/* ── Busca ───────────────────────────────────── */
+
+.emp-busca {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  padding: 0 0.8rem;
+  box-shadow: var(--sombra-xs);
+  transition: border-color 0.16s, box-shadow 0.16s;
+}
+
+.emp-busca:focus-within {
+  border-color: var(--foco-borda);
+  box-shadow: var(--foco-ring);
+}
+
+.emp-busca-icone {
+  width: 16px;
+  height: 16px;
+  color: var(--marrom-apoio);
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.emp-busca input {
+  flex: 1;
+  min-height: 46px;            /* alvo de toque */
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--marrom-escuro);
+}
+
+.emp-busca input::placeholder { color: var(--areia); }
+.emp-busca input::-webkit-search-cancel-button { display: none; }
+
+.emp-busca-limpar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--bege-medio);
+  font-size: 0.85rem;
+  padding: 0.4rem;
+  border-radius: 5px;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.emp-busca-limpar:hover { color: var(--marrom-escuro); background: var(--off-white); }
+
+/* ── Estado e avisos ──────────────────────────── */
+
+.emp-estado {
+  padding: 1.5rem 0.5rem;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  color: var(--marrom-apoio);
+}
+
+.emp-rodape {
+  margin: 0.6rem 0 0;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--marrom-apoio);
+}
+
+/* Estoque esgotado no meio do passo: o aviso precisa ser lido antes de
+   qualquer resultado, porque o motivo de não conseguir é o livro. */
+.emp-aviso-estoque {
+  margin: 0.7rem 0 0;
+  padding: 0.65rem 0.8rem;
+  background: rgba(195, 90, 43, 0.08);
+  border: 1px solid rgba(195, 90, 43, 0.32);
+  border-radius: 9px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--marrom-escuro);
+}
+
+.emp-aviso-estoque strong { display: block; margin-bottom: 0.15rem; }
+
+.emp-aviso-atraso {
+  margin: 0.6rem 0 0;
+  padding: 0.5rem 0.75rem;
+  background: rgba(140, 43, 43, 0.06);
+  border-left: 3px solid var(--vinho);
+  border-radius: 0 7px 7px 0;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--marrom-escuro);
+}
+
+/* ── Lista de livros ─────────────────────────── */
+
+.emp-lista-livros {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.emp-livro {
+  --cor-area: var(--marrom-apoio);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 60px;
+  padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--sans);
+  text-align: left;
+  position: relative;
+  transition: border-color 0.14s, background 0.14s, transform 0.14s;
+}
+
+.emp-livro:hover:not(:disabled) {
+  border-color: var(--bege-medio);
+  background: var(--off-white);
+}
+
+.emp-livro--escolhido {
+  border-color: var(--vinho);
+  background: rgba(140, 43, 43, 0.05);
+  box-shadow: 0 0 0 1px var(--vinho) inset;
+}
+
+/* Sem exemplar: visível e desligado, com o motivo escrito. Esconder o livro
+   daria a impressão de que ele não existe no acervo. */
+.emp-livro--sem {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--fundo);
+}
+
+.emp-livro-capa {
+  flex-shrink: 0;
+  width: 38px;
+  height: 56px;
+  display: block;
+  overflow: hidden;
+  border-radius: 3px;
+}
+
+.emp-livro-capa > * { width: 100%; height: 100%; }
+
+.emp-livro-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.emp-livro-titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--marrom-escuro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emp-livro-autor {
+  font-size: 0.76rem;
+  color: var(--marrom-apoio);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Estoque ─────────────────────────────────── */
+
+/* O número vai dentro de um selo, não solto: é o que diz se dá para
+   registrar, e precisa ser lido antes de clicar. */
+.emp-estoque {
+  flex-shrink: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.emp-estoque-ok {
+  background: rgba(47, 107, 79, 0.1);
+  color: #2F6B4F;
+}
+
+.emp-estoque-ultimo {
+  background: rgba(195, 90, 43, 0.14);
+  color: #9C4A1E;
+}
+
+.emp-estoque--zero {
+  background: var(--off-white);
+  color: var(--marrom-apoio);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.emp-livro-ok {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.35rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vinho);
+  color: #fff;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ── Etapa 2: o livro já escolhido ───────────── */
+
+.emp-escolhido {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--off-white);
+  border: 1px solid var(--bege);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.emp-escolhido-capa {
+  flex-shrink: 0;
+  width: 38px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #fff;
+}
+
+.emp-escolhido-capa > * { width: 100%; height: 100%; }
+
+.emp-escolhido-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-escolhido-rotulo {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--marrom-apoio);
+  font-weight: 700;
+}
+
+.emp-escolhido-titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--marrom-escuro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emp-escolhido-autor {
+  font-size: 0.76rem;
+  color: var(--marrom-apoio);
+}
+
+.emp-trocar {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--bege-medio);
+  border-radius: 7px;
+  padding: 0.4rem 0.7rem;
+  min-height: 44px;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+
+.emp-trocar:hover { background: #fff; color: var(--marrom-escuro); border-color: var(--marrom-apoio); }
+
+/* ── Lista de pessoas ────────────────────────── */
+
+.emp-lista-pessoas {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  max-height: 26vh;
+  overflow-y: auto;
+}
+
+.emp-lista-pessoas li + li { margin-top: 0.3rem; }
+
+.emp-pessoa {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.5rem 0.8rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: var(--sans);
+  text-align: left;
+  position: relative;
+  transition: border-color 0.14s, background 0.14s;
+}
+
+.emp-pessoa:hover { border-color: var(--bege-medio); background: var(--off-white); }
+
+.emp-pessoa--escolhida {
+  border-color: var(--vinho);
+  background: rgba(140, 43, 43, 0.05);
+  box-shadow: 0 0 0 1px var(--vinho) inset;
+}
+
+.emp-pessoa-nome {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--marrom-escuro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emp-pessoa-selo {
+  flex-shrink: 0;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--off-white);
+  color: var(--marrom-apoio);
+  white-space: nowrap;
+}
+
+/* O atraso é a única informação da lista que muda a decisão de emprestar,
+   então é a única que ganha cor. */
+.emp-pessoa-selo--atraso {
+  background: rgba(140, 43, 43, 0.12);
+  color: var(--vinho);
+}
+
+.emp-pessoa-selo--zero {
+  color: var(--areia);
+}
+
+/* ── O que a pessoa já tem ────────────────────── */
+
+/* Aparece só depois de escolher, e não na lista: uma pessoa tem poucos
+   livros, uma biblioteca tem milhares. */
+.emp-empestimos-da-pessoa {
+  list-style: none;
+  margin: 0.25rem 0 0.5rem;
+  padding: 0.45rem 0.7rem;
+  background: var(--fundo);
+  border: 1px dashed var(--bege);
+  border-radius: 8px;
+}
+
+.emp-empestimos-da-pessoa li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.7rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--marrom-apoio);
+  padding: 0.15rem 0;
+}
+
+.emp-empestimos-da-pessoa li.atrasado .emp-emp-titulo { color: var(--vinho); font-weight: 600; }
+.emp-empestimos-da-pessoa li.atrasado .emp-emp-status { color: var(--vinho); font-weight: 600; }
+
+.emp-emp-titulo { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.emp-emp-status { flex-shrink: 0; font-size: 0.7rem; }
+
+/* ── Prazo ───────────────────────────────────── */
+
+.emp-prazos {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.emp-prazo {
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+
+.emp-prazo:hover { border-color: var(--bege-medio); color: var(--marrom-escuro); }
+
+.emp-prazo--ativo {
+  background: var(--vinho);
+  border-color: var(--vinho);
+  color: #fff;
+}
+
+.emp-data {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.7rem;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 9px;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--marrom-escuro);
+}
+
+/* ── Resumo antes de gravar ───────────────────── */
+
+/* A última olhada antes do clique. Sem ela, o botão registra algo que
+   ninguém reviu. */
+.emp-resumo {
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--off-white);
+  border: 1px solid var(--bege);
+  border-radius: 9px;
+}
+
+.emp-resumo-linha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.2rem 0;
+  font-family: var(--sans);
+  font-size: 0.83rem;
+}
+
+.emp-resumo-linha span { color: var(--marrom-apoio); flex-shrink: 0; }
+
+.emp-resumo-linha strong {
+  color: var(--marrom-escuro);
+  font-weight: 600;
+  text-align: right;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Ações ───────────────────────────────────── */
+
+.emp-acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  justify-content: flex-end;
+}
+
+/* ── Movimento reduzido ──────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .emp-livro,
+  .emp-pessoa,
+  .emp-prazo,
+  .emp-trocar,
+  .emp-busca { transition: none; }
+}
+
+/* ── Celular ─────────────────────────────────── */
+
+@media (max-width: 560px) {
+  .emp-lista-livros { max-height: none; }
+  .emp-lista-pessoas { max-height: none; }
+
+  /* A capa ocupa espaço preciouso na lista de livros do celular, e o
+     título já identifica o livro. Some, e o estoque continua visível. */
+  .emp-livro-capa { width: 30px; height: 44px; }
+  .emp-escolhido-capa { width: 30px; height: 44px; }
+
+  .emp-acoes { flex-direction: column-reverse; }
+  .emp-acoes button { width: 100%; justify-content: center; }
+}

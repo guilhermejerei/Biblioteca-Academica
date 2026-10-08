@@ -1,6 +1,7 @@
 package com.biblioteca.controller;
 
 import com.biblioteca.dto.UsuarioDTO;
+import com.biblioteca.dto.UsuarioParaEmprestimo;
 import com.biblioteca.model.Usuario;
 import com.biblioteca.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,22 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<List<UsuarioDTO>> listarTodos() {
         return ResponseEntity.ok(usuarioService.listarTodos());
+    }
+
+    /**
+     * GET /api/usuarios/para-emprestimo
+     *
+     * Lista enxuta para a tela de novo empréstimo: só o nome de quem pode
+     * levar livro e o que essa pessoa já tem em aberto. Fica antes do /{id}
+     * para o "para-emprestimo" não ser lido como id.
+     *
+     * Não é o mesmo do GET /api/usuarios: aquele serve a tela de administração
+     * e precisa de CPF, e-mail e telefone; este existe justamente para não
+     * mostrar nada disso.
+     */
+    @GetMapping("/para-emprestimo")
+    public ResponseEntity<List<UsuarioParaEmprestimo>> listarParaEmprestimo() {
+        return ResponseEntity.ok(usuarioService.listarParaEmprestimo());
     }
 
     // GET /api/usuarios/{id}

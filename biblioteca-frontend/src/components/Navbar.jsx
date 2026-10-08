@@ -124,9 +124,9 @@ export default function Navbar() {
       <nav className="navbar navbar-desktop">
         {/* Marca */}
         <div className="navbar-logo">
-          <div className="navbar-logo-sigla" aria-hidden="true">
-            <IconeBiblioteca size={28} />
-          </div>
+          <span className="navbar-logo-sigla">
+            <IconeBiblioteca size={28} semRotulo />
+          </span>
           <span className="navbar-logo-nome">Biblioteca</span>
         </div>
 

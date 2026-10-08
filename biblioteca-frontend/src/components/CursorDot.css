@@ -1,0 +1,249 @@
+/* ══════════════════════════════════════════════
+   Cursor de ponto
+   ══════════════════════════════════════════════
+
+   A classe `com-ponto` é posta no <html> pelo CursorDot quando o usuário
+   liga o cursor de ponto. Nada aqui vale enquanto ela não estiver: se o
+   JavaScript falhar, a seta do sistema continua aparecendo.
+
+   ── A ordem das regras importa ──
+
+   `html.com-ponto *` tem especificidade 0-1-1 e ganha de quase todo
+   `cursor: pointer` que os componentes definem (0-1-0). Por isso a regra
+   que devolve a seta em <select> e input[type=file] vem DEPOIS e é
+   igualmente específica — ela vence por ordem, não por peso.
+   ══════════════════════════════════════════════ */
+
+/* ── Esconder a seta do sistema ─────────────────── */
+
+html.com-ponto,
+html.com-ponto * {
+  cursor: none !important;
+}
+
+/* Onde a seta ainda é a informação certa: o popover de um <select> e o
+   diálogo de arquivos são menus, não texto. O ponto não vira traço aí. */
+html.com-ponto select,
+html.com-ponto select *,
+html.com-ponto input[type="file"],
+html.com-ponto input[type="file"] *,
+html.com-ponto input[type="color"],
+html.com-ponto input[type="color"] * {
+  cursor: auto !important;
+}
+
+/* ── O ponto ────────────────────────────────────── */
+
+.ponto-cursor {
+  --cor-ponto: var(--vinho);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  /* O ponto é decoração: se recebesse o ponteiro, ele roubaria o clique de
+     tudo que estiver embaixo e o site inteiro ficaria morto num raio de
+     20px ao redor do mouse. */
+  pointer-events: none;
+}
+
+.ponto-cursor--visivel { opacity: 1; }
+
+.ponto-nucleo,
+.ponto-anel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* top/left fixos em 0 e o translate fazendo o posicionamento. Sem isso o
+     navegador teria de recalcular a posição de layout a cada mousemove. */
+  will-change: transform;
+}
+
+/* ── O núcleo: o ponto que segue colado no mouse ── */
+
+.ponto-nucleo {
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border-radius: 999px;
+  background: var(--cor-ponto);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75), 0 1px 3px rgba(46, 33, 27, 0.25);
+  transition:
+    width  0.16s cubic-bezier(0.34, 1.4, 0.64, 1),
+    height 0.16s cubic-bezier(0.34, 1.4, 0.64, 1),
+    margin 0.16s cubic-bezier(0.34, 1.4, 0.64, 1),
+    background-color 0.2s ease;
+}
+
+/* O contorno branco é o que garante o ponto sobre fundo escuro (a navbar é
+   quase preta) sem precisar de uma segunda cor por estado. */
+
+/* ── O anel: o que dá a sensação de peso ────────── */
+
+.ponto-anel {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 999px;
+  border: 1.5px solid var(--cor-ponto);
+  opacity: 0;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+/* Sobre o que dá para clicar, o ponto cresce e o anel aparece: o conjunto
+   vira um alvo de ~30px, do tamanho que a WCAG recommends para toque. */
+.ponto-cursor.ponto--clicavel .ponto-anel {
+  opacity: 0.55;
+}
+
+/* ── Sobre campo de texto: vira o traço de digitação ── */
+
+/* Um ponto dentro de um input é inútil: a informação que falta é a linha de
+   base do texto, e é isso que o I-beam do sistema comunica. Trocar o ponto
+   por um traço alto mantém a linguagem visual do site e continua dizendo
+   onde o texto entraria. */
+.ponto-cursor.ponto--texto .ponto-nucleo {
+  width: 2px;
+  height: 20px;
+  margin: -10px 0 0 -1px;
+  border-radius: 1px;
+  background: var(--cor-ponto);
+}
+
+.ponto-cursor.ponto--texto .ponto-anel { opacity: 0; }
+
+/* ── Ao apertar ─────────────────────────────────── */
+
+/* Encolhe sob o dedo. Um clique com o alvo que cresce dá a sensação de botão
+   afundando; sem encolher, o clique parece não ter acertado nada.
+
+   O encolhimento é por width/height/margin e NÃO por transform: a posição do
+   ponto é escrita em transform, no style inline, pelo JavaScript a cada
+   mousemove. Um transform aqui seria sobrescrito na hora e o efeito de clique
+   simplesmente nunca apareceria. */
+.ponto-cursor.ponto--pressionado .ponto-nucleo {
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+}
+
+/* ── A chave para desligar ───────────────────────── */
+
+/* Fica visível de propósito: quem landed nesta página e o cursor sumiu
+   precisa ter um caminho de volta visível, e não escondido num menu. */
+/* 44px: o mesmo alvo de toque do resto do projeto. Este botão é justamente a
+   saída de emergência para quem não consegue mirar num ponto, então um alvo
+   pequeno aqui seria uma ironia ruim. */
+.ponto-chave {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 10000;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 999px;
+  box-shadow: var(--sombra-md);
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.ponto-chave:hover {
+  transform: translateY(-2px);
+  border-color: var(--bege-medio);
+  box-shadow: var(--sombra-lg);
+}
+
+.ponto-chave:active { transform: translateY(0) scale(0.94); }
+
+/* O botão precisa continuar com a seta: é justamente a saída de emergência
+   para quem não consegue mirar num ponto. */
+html.com-ponto .ponto-chave,
+html.com-ponto .ponto-chave * {
+  cursor: pointer !important;
+}
+
+/* A figurinha: um pontinho, que é o próprio cursor. Marcado, ganha um
+   contorno — o estado não pode depender só da cor. */
+.ponto-chave-icone {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.ponto-chave-bola {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 999px;
+  background: var(--marrom-apoio);
+  transition: width 0.15s ease, height 0.15s ease, margin 0.15s ease, background-color 0.15s ease;
+}
+
+.ponto-chave--ligado .ponto-chave-bola {
+  width: 13px;
+  height: 13px;
+  margin: -6.5px 0 0 -6.5px;
+  background: transparent;
+  border: 1.5px solid var(--vinho);
+}
+
+.ponto-chave--ligado .ponto-chave-bola::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 999px;
+  background: var(--vinho);
+}
+
+/* ── Quem pediu menos movimento ─────────────────── */
+
+/* O cursor de ponto é, por definição, um elemento que persegue o mouse.
+   Quem pediu menos movimento no sistema não quer isso. */
+@media (prefers-reduced-motion: reduce) {
+  .ponto-cursor { display: none; }
+
+  html.com-ponto,
+  html.com-ponto * {
+    cursor: auto !important;
+  }
+
+  html.com-ponto .ponto-chave,
+  html.com-ponto .ponto-chave * {
+    cursor: pointer !important;
+  }
+}
+
+/* ── Sem mouse, nada disso ──────────────────────── */
+
+/* Em touchscreen não existe ponteiro para seguir. Deixar o cursor escondido
+   aqui significaria tocar no lugar errado sem nenhuma pista de onde. */
+@media (hover: none), (pointer: coarse) {
+  .ponto-cursor { display: none; }
+
+  html.com-ponto,
+  html.com-ponto * {
+    cursor: auto !important;
+  }
+
+  /* A chave também some: sem mouse ela não faz sentido e ocuparia um canto
+     da tela à toa. */
+  .ponto-chave { display: none; }
+}

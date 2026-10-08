@@ -26,15 +26,14 @@
   text-decoration: none;
 }
 
+/* O ícone já vem com o fundo e o canto arredondado no próprio desenho
+   (rx 118 no viewBox de 512). A caixa aqui é só o espaço que ele ocupa. */
 .navbar-logo-sigla {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  overflow: hidden; /* garante que o rx do ícone seja respeitado */
+  line-height: 0;
 }
 
 .navbar-logo-sigla svg {

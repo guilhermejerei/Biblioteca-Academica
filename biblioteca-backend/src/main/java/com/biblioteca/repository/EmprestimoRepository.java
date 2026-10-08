@@ -21,4 +21,16 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
     /** Lista empréstimos cujo status gravado é ATIVO ou ATRASADO (não devolvidos). */
     @Query("SELECT e FROM Emprestimo e WHERE e.status <> com.biblioteca.model.Emprestimo.Status.DEVOLVIDO")
     List<Emprestimo> findNaoDevolvidos();
+
+    /**
+     * Os empréstimos em aberto de toda a biblioteca, com o livro de cada um.
+     *
+     * Um conjunto limitado pelo tamanho do acervo, não pelo histórico: só o que
+     * ainda está com alguém. Traz o livro porque a tela mostra "1984 está com
+     * fulano" e a data, e sem o join do livro viriam N+1 na hora de listar.
+     */
+    @Query("SELECT e FROM Emprestimo e "
+         + "JOIN FETCH e.livro "
+         + "WHERE e.status <> com.biblioteca.model.Emprestimo.Status.DEVOLVIDO")
+    List<Emprestimo> listarAbertosComLivro();
 }

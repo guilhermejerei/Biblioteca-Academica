@@ -5,6 +5,18 @@ export async function listarUsuarios() {
   return res.data
 }
 
+/**
+ * Quem pode levar livro, para a tela de novo empréstimo.
+ *
+ * Lista enxuta de propósito: só o nome e o que a pessoa já tem em aberto. Sem
+ * CPF, e-mail nem telefone, porque no balcão a escolha é pelo nome e um CPF
+ * de onze dígitos ao lado de cada um só rouba largura.
+ */
+export async function listarUsuariosParaEmprestimo() {
+  const res = await api.get('/usuarios/para-emprestimo')
+  return res.data
+}
+
 export async function buscarUsuarioPorId(id) {
   const res = await api.get(`/usuarios/${id}`)
   return res.data

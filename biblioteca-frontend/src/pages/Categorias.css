@@ -1,0 +1,326 @@
+/* ══════════════════════════════════════════════
+   Árvore de categorias
+   ══════════════════════════════════════════════ */
+
+/* Explica a regra dos dois níveis antes da lista. Sem isso a distinção
+   entre "criar área" e "criar subcategoria" só fica clara depois do erro. */
+.ctg-explicacao {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--off-white);
+  border: 1px solid var(--bege);
+  border-left: 3px solid var(--vinho);
+  border-radius: 0 8px 8px 0;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--marrom-apoio);
+}
+
+.ctg-explicacao strong { color: var(--marrom-escuro); }
+
+/* ── Lista ────────────────────────────────────── */
+
+.ctg-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ctg-area {
+  --cor-area: var(--marrom-apoio);
+  background: #fff;
+  border: 1px solid var(--bege);
+  border-left: 3px solid var(--cor-area);
+  border-radius: 10px;
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+
+.ctg-area-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+}
+
+.ctg-area-nome {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;              /* alvo de toque */
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--marrom-escuro);
+  text-align: left;
+  transition: color 0.14s ease;
+}
+
+.ctg-area-nome:hover { color: var(--vinho); }
+
+/* A seta girando é o que diz "aberta". A área também ganha a sombra, para
+   quem não percebe o giro. */
+.ctg-seta {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--marrom-apoio);
+  transition: transform 0.16s ease;
+}
+.ctg-seta--aberta { transform: rotate(90deg); }
+
+/* A cor da área, do lado do nome — a mesma que pinta a lombada */
+.ctg-ponto {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: var(--cor-area);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--cor-area);
+  flex-shrink: 0;
+}
+
+.ctg-area-numeros {
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  color: var(--marrom-apoio);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ctg-area-acoes {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+/* ── Subcategorias ────────────────────────────── */
+
+.ctg-subs {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.85rem 0.7rem 2.6rem;
+  border-top: 1px solid var(--bege);
+  background: var(--fundo);
+}
+
+.ctg-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  min-height: 40px;
+}
+
+.ctg-sub + .ctg-sub { border-top: 1px dashed var(--bege); }
+
+.ctg-sub--ativo { background: rgba(140, 43, 43, 0.05); }
+
+.ctg-sub-nome {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  color: var(--marrom-escuro);
+}
+
+.ctg-sub-n {
+  font-size: 0.72rem;
+  color: var(--marrom-apoio);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ctg-sub-acoes {
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+/* As ações ficam escondidas até a linha receber o mouse. Não é mouseover —
+   no teclado elas precisam aparecer, senão o foco passa por botões invisíveis. */
+.ctg-sub:hover .ctg-sub-acoes,
+.ctg-sub:focus-within .ctg-sub-acoes { opacity: 1; }
+
+/* As ações da área ficam sempre visíveis: são poucas e a área é a unidade
+   que se edita, não a subcategoria. */
+.ctg-area-acoes { opacity: 1; }
+
+/* ── Alvos de toque das ações ─────────────────── */
+
+/*
+  Os botões da área vêm de Pagina.css, com 26px de altura — pensado para
+  mouse. Aqui eles ficam numa linha de 44px, e o alvo é o botão inteiro: o
+  padding aumenta o clique sem mudar o desenho.
+*/
+.ctg-area-acoes .btn-editar,
+.ctg-area-acoes .btn-excluir {
+  min-height: 44px;
+  padding: 0 0.9rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/*
+  As da subcategoria são as mini. Continuam menores que 44px porque são
+  ações secundárias dentro de uma linha já alta, mas chegam a 40px e a
+  linha inteira tem 44px — o alvo efetivo é a faixa da linha.
+*/
+.btn-editar--mini,
+.btn-excluir--mini {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ctg-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+}
+
+.ctg-subs-vazia {
+  padding: 0.6rem 0;
+  font-size: 0.82rem;
+  color: var(--marrom-apoio);
+}
+
+.ctg-subs-vazia button,
+.ctg-subs-nova button {
+  background: none;
+  border: none;
+  padding: 0.3rem 0.4rem;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--vinho);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  border-radius: 5px;
+  min-height: 36px;
+}
+
+.ctg-subs-vazia button:hover,
+.ctg-subs-nova button:hover { background: rgba(140, 43, 43, 0.07); }
+
+.ctg-subs-nova { padding-top: 0.35rem; }
+
+/* ── Drawer: escolha do nível ─────────────────── */
+
+.ctg-nivel {
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.ctg-nivel legend {
+  padding: 0;
+  margin-bottom: 0.4rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--marrom-apoio);
+}
+
+.ctg-nivel-op {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.4rem;
+  background: var(--fundo);
+  border: 1px solid var(--bege);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.14s, background 0.14s;
+}
+
+.ctg-nivel-op:hover { border-color: var(--bege-medio); }
+
+/* A marcada ganha a borda vinho E o radio marcado visível — o estado não
+   pode depender só da cor. */
+.ctg-nivel-op--ativa {
+  border-color: var(--vinho);
+  background: rgba(140, 43, 43, 0.06);
+}
+
+.ctg-nivel-op strong {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--marrom-escuro);
+}
+
+.ctg-nivel-op span {
+  font-size: 0.75rem;
+  color: var(--marrom-apoio);
+}
+
+.ctg-nivel-op input { accent-color: var(--vinho); }
+
+/* ── Drawer: cores da área ────────────────────── */
+
+.ctg-cores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ctg-cor {
+  position: relative;
+  width: 44px;                     /* alvo de toque */
+  height: 44px;
+  border-radius: 10px;
+  background: var(--cor-area);
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 1px rgba(46, 33, 27, 0.15);
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.ctg-cor:hover { transform: translateY(-2px); }
+
+.ctg-cor--ativa {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--cor-area);
+}
+
+.ctg-dica {
+  margin: 0.35rem 0 0;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--marrom-apoio);
+}
+
+/* ── Ações do drawer ──────────────────────────── */
+
+.ctg-acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* ── Movimento reduzido ───────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ctg-seta,
+  .ctg-cor,
+  .ctg-area-nome,
+  .ctg-sub-acoes { transition: none; }
+
+  .ctg-cor:hover { transform: none; }
+}

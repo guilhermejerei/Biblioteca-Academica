@@ -227,6 +227,11 @@ export default function FiltroPilhas({
             <path strokeLinecap="round" strokeLinejoin="round"
               d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
           </svg>
+          {/* Campo de busca comum. O padrão de combobox foi descartado de propósito:
+            aria-expanded não é aceito por <input type="search">, e declarar
+            role="listbox" aqui obrigaria os filhos a serem role="option", o
+            que não descreve botões de marcar e desmarcar. O que importa —
+            que o resultado seja anunciado — vem do aria-live da lista abaixo. */}
           <input
             id="busca-categoria"
             type="search"
@@ -234,7 +239,7 @@ export default function FiltroPilhas({
             placeholder="Ache uma subcategoria em qualquer área…"
             onChange={e => setBusca(e.target.value)}
             aria-describedby="busca-cat-resultados"
-            aria-expanded={busca.trim().length > 0}
+            autoComplete="off"
           />
           {busca && (
             <button
@@ -246,30 +251,39 @@ export default function FiltroPilhas({
           )}
         </div>
 
-        {busca.trim() && (
-          <ul className="busca-cat-lista" id="busca-cat-resultados">
-            {resultadosBusca.length === 0 && (
-              <li className="busca-cat-vazia">Nenhuma categoria com esse nome.</li>
-            )}
-            {resultadosBusca.map(({ area, sub }) => (
-              <li key={sub.id}>
-                <button
-                  type="button"
-                  className={`busca-cat-item ${marcadas.has(sub.id) ? 'busca-cat-item--marcada' : ''}`}
-                  onClick={() => aoMarcar(sub.id)}
-                  aria-pressed={marcadas.has(sub.id)}
-                  style={{ '--cor-area': area.cor }}
-                >
-                  <span className="busca-cat-pilhao" aria-hidden="true" />
-                  <span className="busca-cat-nome">{sub.nome}</span>
-                  <span className="busca-cat-area">{area.nome}</span>
-                  <span className="busca-cat-n">{sub.totalLivros}</span>
-                  {marcadas.has(sub.id) && <span className="sub-ok" aria-hidden="true">✓</span>}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        {/*
+          A lista existe sempre, mesmo escondida quando não há busca. O
+          aria-describedby aponta para cá, e um alvo que some do DOM deixa a
+          referência pendurada. Com aria-live, o leitor de tela anuncia quantas
+          categorias o termo encontrou a cada tecla.
+        */}
+        <ul
+          className="busca-cat-lista"
+          id="busca-cat-resultados"
+          aria-live="polite"
+          hidden={!busca.trim()}
+        >
+          {resultadosBusca.length === 0 && (
+            <li className="busca-cat-vazia">Nenhuma categoria com esse nome.</li>
+          )}
+          {resultadosBusca.map(({ area, sub }) => (
+            <li key={sub.id}>
+              <button
+                type="button"
+                className={`busca-cat-item ${marcadas.has(sub.id) ? 'busca-cat-item--marcada' : ''}`}
+                onClick={() => aoMarcar(sub.id)}
+                aria-pressed={marcadas.has(sub.id)}
+                style={{ '--cor-area': area.cor }}
+              >
+                <span className="busca-cat-pilhao" aria-hidden="true" />
+                <span className="busca-cat-nome">{sub.nome}</span>
+                <span className="busca-cat-area">{area.nome}</span>
+                <span className="busca-cat-n">{sub.totalLivros}</span>
+                {marcadas.has(sub.id) && <span className="sub-ok" aria-hidden="true">✓</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* ── Resumo e controles ────────────────────────── */}

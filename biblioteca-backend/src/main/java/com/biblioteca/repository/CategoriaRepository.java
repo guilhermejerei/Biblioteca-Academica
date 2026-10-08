@@ -3,6 +3,7 @@ package com.biblioteca.repository;
 import com.biblioteca.model.Categoria;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -61,4 +62,51 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
             + "OR (c.categoriaPai IS NULL AND c.cor IS NOT NULL) "
          + "ORDER BY c.ordemExibicao, c.nome")
     List<Categoria> findAllReais();
+
+    // ════════════════════════════════════════════════════════════
+    // Regras da árvore — o que a tela de administração precisa
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * Já existe uma área com esse nome? Comparação sem diferenciar maiúsculas
+     * e acentos-insensitiva via LOWER, que é o que a pessoa digita.
+     *
+     * O id ignorado é para uma categoria poder ser renomeada para o mesmo
+     * nome que já tem — sem isso, editar sem mudar o nome acusaria duplicidade
+     * da categoria consigo mesma.
+     */
+    @Query("SELECT COUNT(c) > 0 FROM Categoria c "
+         + "WHERE LOWER(c.nome) = LOWER(:nome) "
+            + "AND c.categoriaPai IS NULL "
+            + "AND (:ignorarId IS NULL OR c.id <> :ignorarId)")
+    boolean existeAreaComNome(@Param("nome") String nome, @Param("ignorarId") Long ignorarId);
+
+    /** Mesma regra, mas entre as filhas de uma área. */
+    @Query("SELECT COUNT(c) > 0 FROM Categoria c "
+         + "WHERE LOWER(c.nome) = LOWER(:nome) "
+            + "AND c.categoriaPai.id = :areaId "
+            + "AND (:ignorarId IS NULL OR c.id <> :ignorarId)")
+    boolean existeSubcategoriaComNome(
+            @Param("nome") String nome,
+            @Param("areaId") Long areaId,
+            @Param("ignorarId") Long ignorarId);
+
+    /** Quantas subcategorias a área tem. Para o aviso antes de excluir. */
+    @Query("SELECT COUNT(c) FROM Categoria c WHERE c.categoriaPai.id = :areaId")
+    long contarSubcategoriasDe(@Param("areaId") Long areaId);
+
+    /**
+     * Quantos livros estão ligados a esta categoria.
+     *
+     * É o que impede a exclusão de uma categoria em uso. Sem esta contagem o
+     * banco recusaria com violação de chave estrangeira e a tela mostraria um
+     * 404 sem dizer nada — que foi exatamente o defeito.
+     */
+    @Query("SELECT COUNT(lc) FROM LivroCategoria lc WHERE lc.categoria.id = :categoriaId")
+    long contarLivrosDe(@Param("categoriaId") Long categoriaId);
+
+    /** A maior ordem já usada entre as áreas, para sugerir a próxima. */
+    @Query("SELECT COALESCE(MAX(c.ordemExibicao), 0) FROM Categoria c "
+         + "WHERE c.categoriaPai IS NULL AND c.cor IS NOT NULL")
+    int maiorOrdemDeArea();
 }

@@ -527,17 +527,8 @@
 .aviso-zero-btn:hover { background: var(--vinho); transform: translateY(-1px); }
 
 /* ── Só para leitor de tela ───────────────────────── */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+/* A classe .sr-only passou para index.css: ela é usada por outros
+   componentes e, ficando aqui, só existia com o filtro de pilhas na tela. */
 
 /* ── Responsivo ───────────────────────────────────── */
 @media (max-width: 680px) {

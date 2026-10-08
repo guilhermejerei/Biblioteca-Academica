@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef } from 'react'
+import { useSom } from './SomContext'
 import './DialogoContext.css'
 
 /**
@@ -22,22 +23,27 @@ const DialogoContext = createContext(null)
 export function DialogoProvider({ children }) {
   const [dialogo, setDialogo] = useState(null)
   const resolveRef = useRef(null)
+  const { tocar } = useSom()
 
   // Modal de feedback simples (OK)
   const alertar = useCallback((mensagem, variante = 'aviso') => {
     return new Promise((resolve) => {
       resolveRef.current = resolve
       setDialogo({ tipo: 'alerta', mensagem, variante })
+      if (variante === 'sucesso') tocar('success')
+      else if (variante === 'erro') tocar('error')
+      else tocar('click')
     })
-  }, [])
+  }, [tocar])
 
   // Modal de confirmação (Confirmar / Cancelar)
   const confirmar = useCallback((mensagem, titulo = 'Confirmar ação') => {
     return new Promise((resolve) => {
       resolveRef.current = resolve
       setDialogo({ tipo: 'confirmacao', mensagem, titulo })
+      tocar('toggle')
     })
-  }, [])
+  }, [tocar])
 
   function fechar(resultado) {
     setDialogo(null)
@@ -113,7 +119,7 @@ export function DialogoProvider({ children }) {
               {dialogo.tipo === 'alerta' ? (
                 <button
                   className="btn-dialogo btn-dialogo-primario"
-                  onClick={() => fechar(true)}
+                  onClick={() => { tocar('confirm'); fechar(true) }}
                   autoFocus
                 >
                   OK
@@ -122,13 +128,13 @@ export function DialogoProvider({ children }) {
                 <>
                   <button
                     className="btn-dialogo btn-dialogo-secundario"
-                    onClick={() => fechar(false)}
+                    onClick={() => { tocar('click'); fechar(false) }}
                   >
                     Cancelar
                   </button>
                   <button
                     className="btn-dialogo btn-dialogo-destrutivo"
-                    onClick={() => fechar(true)}
+                    onClick={() => { tocar('confirm'); fechar(true) }}
                     autoFocus
                   >
                     Confirmar

@@ -500,3 +500,40 @@
 .sinc-girando {
   animation: spin 0.8s linear infinite;
 }
+
+/* ── Botão de toggle de som ────────────────────────────────── */
+.navbar-som-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--marrom-apoio, #c9a97a);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+.navbar-som-btn:hover {
+  color: var(--marrom-escuro, #d4b896);
+  background: rgba(217,195,168,0.08);
+}
+
+.navbar-som-btn[data-mudo='true'] {
+  color: var(--marrom-apoio, #c9a97a);
+  opacity: 0.45;
+}
+
+.navbar-som-btn[data-mudo='true']:hover {
+  opacity: 0.75;
+}
+
+.navbar-som-btn svg {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}

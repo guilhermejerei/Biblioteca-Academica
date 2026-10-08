@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useSom } from '../context/SomContext'
 import IconeBiblioteca from '../assets/icones/IconeBiblioteca'
 import './Auth.css'
 
 export default function Login() {
   const { login } = useAuth()
   const navigate   = useNavigate()
+  const { tocar } = useSom()
   const [valores, setValores]     = useState({ email: '', senha: '' })
   const [erro, setErro]           = useState('')
   const [carregando, setCarregando] = useState(false)
@@ -21,8 +23,10 @@ export default function Login() {
     setCarregando(true)
     try {
       const usuario = await login(valores.email, valores.senha)
+      tocar('login')
       navigate(usuario.tipo === 'BIBLIOTECARIO' ? '/' : '/livros')
     } catch (err) {
+      tocar('error')
       setErro(err.response?.data?.erro || 'Não foi possível realizar o login. Verifique suas credenciais.')
     } finally {
       setCarregando(false)

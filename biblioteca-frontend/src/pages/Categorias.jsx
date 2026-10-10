@@ -8,7 +8,6 @@ import {
   excluirCategoria,
   proximaOrdemArea,
 } from '../api/categorias'
-import './Pagina.css'
 import './Categorias.css'
 
 /**

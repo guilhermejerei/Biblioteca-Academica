@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { buscarEmprestimosPorUsuario } from '../api/emprestimos'
 import CapaLivro from '../components/CapaLivro'
-import './Pagina.css'
 import './MeuPerfil.css'
 
 export default function MeuPerfil() {

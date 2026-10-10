@@ -1,5 +1,9 @@
 /* ══════════════════════════════════════════════════
    Estilos compartilhados — páginas internas
+
+   Carregado uma vez só, em main.jsx. Cuidado ao mexer
+   aqui: estas regras valem para todas as páginas ao mesmo
+   tempo, e um seletor novo demais vaza para as outras.
    ══════════════════════════════════════════════════ */
 
 .pagina {

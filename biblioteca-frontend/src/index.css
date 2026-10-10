@@ -71,6 +71,21 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ══════════════════════════════════════════════════
+   Preferências de aparência
+   ──────────────────────────────────────────────────
+   O contexto de preferências escreve este atributo no
+   <html>; a regra abaixo é a única coisa que faz o site
+   mudar de fato. Tudo que o resto do CSS usa é rem, px ou
+   clamp() — nada de tamanho de texto em px nas folhas de
+   componente —, por isso mexer aqui reposiciona a
+   interface inteira de uma vez.
+   ══════════════════════════════════════════════════ */
+
+html[data-fonte='pequeno'] { font-size: 15px; }
+html[data-fonte='padrao']  { font-size: 16px; }
+html[data-fonte='grande']  { font-size: 17.5px; }
+
 body {
   font-family: var(--sans);
   background-color: var(--fundo);

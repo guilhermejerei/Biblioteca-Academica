@@ -8,7 +8,6 @@ import {
   listarEmprestimos, registrarDevolucao,
   buscarEmprestimosAtivos, buscarEmprestimosAtrasados, atualizarPrazo
 } from '../api/emprestimos'
-import './Pagina.css'
 import './Emprestimos.css'
 
 // ── Card de empréstimo (mobile e desktop) ────────────────────

@@ -25,7 +25,6 @@ import {
 import { listarAutores } from '../api/autores'
 import { listarCategorias, arvoreCategorias } from '../api/categorias'
 import { useSincronizacao } from '../context/SincronizacaoContext'
-import './Pagina.css'
 import './Livros.css'
 
 // ── Colunas da tabela administrativa ────────────────────────

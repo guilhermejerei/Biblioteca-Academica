@@ -4,6 +4,7 @@ import { listarLivros } from '../api/livros'
 import { listarUsuarios } from '../api/usuarios'
 import { buscarEmprestimosAtivos, buscarEmprestimosAtrasados } from '../api/emprestimos'
 import { useAuth } from '../context/AuthContext'
+// O .pagina e o .spinner vêm de Pagina.css, que é global (main.jsx).
 import './Dashboard.css'
 
 // SVGs dos ícones — sem nenhum emoji

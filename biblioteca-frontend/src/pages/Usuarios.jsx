@@ -3,7 +3,6 @@ import Formulario from '../components/Formulario'
 import { useDialogo } from '../context/DialogoContext'
 import { useSom } from '../context/SomContext'
 import { listarUsuarios, atualizarUsuario, excluirUsuario } from '../api/usuarios'
-import './Pagina.css'
 import './ListaComBusca.css'
 
 const CAMPOS = [

@@ -4,7 +4,6 @@ import Paginacao from '../components/Paginacao'
 import { useDialogo } from '../context/DialogoContext'
 import { useSom } from '../context/SomContext'
 import { listarAutores, cadastrarAutor, atualizarAutor, excluirAutor } from '../api/autores'
-import './Pagina.css'
 import './ListaComBusca.css'
 
 const CAMPOS = [{ name: 'nome', label: 'Nome', required: true, placeholder: 'Nome do autor' }]

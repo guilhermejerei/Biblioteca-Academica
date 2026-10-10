@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { usePreferencias } from '../context/PreferenciasContext'
 import './CursorDot.css'
 
 /**
@@ -72,8 +73,23 @@ export default function CursorDot() {
   const anel  = useRef({ x: 0, y: 0 })
 
   const quadro = useRef(0)
-  const [ligado, setLigado] = useState(false)
   const [mostrado, setMostrado] = useState(false)
+
+  /**
+   * A preferência vem do contexto e não deste componente.
+   *
+   * Ela precisa ser mudável de fora — a tela de Configurações tem um
+   * interruptor para ela — e o localStorage é o único lugar onde as duas
+   * pontas se encontram. Guardar a preferência aqui dentro impediria a
+   * página de Configurações de enxergar o estado atual, e ela mostraria
+   * "ligado" para quem já tinha desligado.
+   *
+   * Enquanto o contexto ainda não decidiu (a preferência começa em null,
+   * porque depende do que o navegador responde sobre mouse e movimento),
+   * o cursor do site não é desenhado: melhor a seta aparecer do que piscar.
+   */
+  const { cursorPonto, definirCursorPonto } = usePreferencias()
+  const ligado = cursorPonto === true
 
   /**
    * Liga e desliga, e cuida da classe no <html>.
@@ -262,32 +278,6 @@ export default function CursorDot() {
     }
   }, [ligado, desenhar, acordar])
 
-  /**
-   * A preferência inicial.
-   *
-   * Quem pediu menos movimento no sistema começa com o cursor normal: quem
-   * sente enjoo com animação é exatamente quem mais sofre com um cursor que
-   * persegue o mouse.
-   */
-  useEffect(() => {
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const soTemTeclado = window.matchMedia('(hover: none) and (pointer: coarse)')
-    try {
-      const guardado = localStorage.getItem('ponto_no_cursor')
-      setLigado(guardado === null ? !mql.matches && !soTemTeclado.matches : guardado === '1')
-    } catch {
-      setLigado(false)
-    }
-  }, [])
-
-  function alternar() {
-    setLigado(anterior => {
-      const novo = !anterior
-      try { localStorage.setItem('ponto_no_cursor', novo ? '1' : '0') } catch {}
-      return novo
-    })
-  }
-
   const nomeBotao = ligado
     ? 'Usar o cursor normal do sistema'
     : 'Usar o cursor de ponto do site'
@@ -308,7 +298,7 @@ export default function CursorDot() {
       <button
         type="button"
         className={`ponto-chave ${ligado ? 'ponto-chave--ligado' : ''}`}
-        onClick={alternar}
+        onClick={() => definirCursorPonto(!ligado)}
         aria-pressed={ligado}
         title={nomeBotao}
       >

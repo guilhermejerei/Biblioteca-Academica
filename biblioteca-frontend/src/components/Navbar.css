@@ -501,8 +501,11 @@
   animation: spin 0.8s linear infinite;
 }
 
-/* ── Botão de toggle de som ────────────────────────────────── */
-.navbar-som-btn {
+/* ── Botão de configurações ───────────────────────────────
+   Mesma pegada do botão do usuário: um alvo discreto, com a
+   mesma família de cor da navbar. Fica na ponta direita, depois
+   do menu do usuário. */
+.navbar-config-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -510,30 +513,27 @@
   height: 32px;
   padding: 0;
   background: transparent;
-  border: none;
-  border-radius: 6px;
-  color: var(--marrom-apoio, #c9a97a);
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: rgba(217,195,168,0.5);
   cursor: pointer;
   flex-shrink: 0;
-  transition: color 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+  transition: color 0.18s, background 0.18s, border-color 0.18s;
 }
 
-.navbar-som-btn:hover {
-  color: var(--marrom-escuro, #d4b896);
+.navbar-config-btn:hover {
+  color: rgba(217,195,168,0.9);
   background: rgba(217,195,168,0.08);
+  border-color: rgba(217,195,168,0.12);
 }
 
-.navbar-som-btn[data-mudo='true'] {
-  color: var(--marrom-apoio, #c9a97a);
-  opacity: 0.45;
+.navbar-config-btn:focus-visible {
+  outline: 2px solid var(--laranja);
+  outline-offset: 2px;
 }
 
-.navbar-som-btn[data-mudo='true']:hover {
-  opacity: 0.75;
-}
-
-.navbar-som-btn svg {
-  width: 18px;
-  height: 18px;
+.navbar-config-btn svg {
+  width: 17px;
+  height: 17px;
   pointer-events: none;
 }

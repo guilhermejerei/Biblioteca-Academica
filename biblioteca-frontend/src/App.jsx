@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext'
 import { DialogoProvider } from './context/DialogoContext'
 import { SincronizacaoProvider } from './context/SincronizacaoContext'
 import { SomProvider } from './context/SomContext'
+import { PreferenciasProvider } from './context/PreferenciasContext'
 import { RotaProtegida, RotaBibliotecario } from './components/RotaProtegida'
 import Navbar from './components/Navbar'
 import GrainyBackground from './components/GrainyBackground'
@@ -22,6 +23,7 @@ const Usuarios         = lazy(() => import('./pages/Usuarios'))
 const Emprestimos      = lazy(() => import('./pages/Emprestimos'))
 const MeuPerfil        = lazy(() => import('./pages/MeuPerfil'))
 const MeusEmprestimos  = lazy(() => import('./pages/MeusEmprestimos'))
+const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 
 // Renderiza o fundo apenas nas rotas públicas
 function FundoPublico() {
@@ -33,6 +35,9 @@ function FundoPublico() {
 export default function App() {
   return (
     <SomProvider>
+    {/* Preferências de aparência: fica acima de tudo porque o CursorDot e as
+        folhas de estilo global leem dela já na primeira renderização. */}
+    <PreferenciasProvider>
     <AuthProvider>
       <DialogoProvider>
         <SincronizacaoProvider>
@@ -45,7 +50,10 @@ export default function App() {
               resto da tela. */}
           <CursorDot />
 
-          <Suspense fallback={<div style={{display:'flex', justifyContent:'center', alignItems:'center', minHeight:'60vh'}}><div className="spinner" /></div>}>
+          {/* Só cobre o que ainda pode suspender por fora do layout com navbar.
+              Login e Cadastro não são lazy, então isto é apenas uma rede de
+              segurança — a fronteira que importa está no LayoutComNavbar. */}
+          <Suspense fallback={<PaginaCarregando />}>
             <Routes>
               {/* Rotas públicas — sem Navbar */}
               <Route path="/login"    element={<Login />} />
@@ -59,6 +67,7 @@ export default function App() {
                   <Route path="/livros"           element={<Livros />} />
                   <Route path="/meus-emprestimos" element={<MeusEmprestimos />} />
                   <Route path="/meu-perfil"       element={<MeuPerfil />} />
+                  <Route path="/configuracoes"    element={<Configuracoes />} />
 
                   {/* Rotas exclusivas do BIBLIOTECARIO */}
                   <Route element={<RotaBibliotecario />}>
@@ -78,6 +87,7 @@ export default function App() {
         </SincronizacaoProvider>
       </DialogoProvider>
     </AuthProvider>
+    </PreferenciasProvider>
     </SomProvider>
   )
 }
@@ -87,9 +97,27 @@ function LayoutComNavbar() {
     <>
       <Navbar />
       <main>
-        <Outlet />
+        {/* A fronteira do Suspense fica AQUI, e não em volta das <Routes>.
+            Com ela lá fora, uma página lazy que ainda estava baixando fazia o
+            React trocar a árvore inteira pelo fallback — e como o Navbar mora
+            dentro das rotas, a barra sumia junto e a tela piscava na cor de
+            fundo a cada troca de aba. Assim só o conteúdo troca; a navbar
+            fica parada. */}
+        <Suspense fallback={<PaginaCarregando />}>
+          <Outlet />
+        </Suspense>
       </main>
     </>
+  )
+}
+
+function PaginaCarregando() {
+  return (
+    <div className="pagina">
+      <div className="dashboard-carregando">
+        <div className="spinner" />
+      </div>
+    </div>
   )
 }
 

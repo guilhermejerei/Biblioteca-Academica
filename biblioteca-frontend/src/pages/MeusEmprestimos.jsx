@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { buscarEmprestimosPorUsuario } from '../api/emprestimos'
 import Tabela from '../components/Tabela'
-import './Pagina.css'
 import './Emprestimos.css'
 
 const COLUNAS_DESKTOP = [

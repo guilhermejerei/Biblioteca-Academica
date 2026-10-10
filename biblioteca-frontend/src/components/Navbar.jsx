@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useSom } from '../context/SomContext'
 import IconeBiblioteca from '../assets/icones/IconeBiblioteca'
+import { IconeEngrenagem } from './IconesConfig'
 import './Navbar.css'
 
 // ── Ícones SVG inline para a bottom bar ─────────────────────
@@ -64,47 +65,9 @@ export default function Navbar() {
   const menuUsuarioRef = useRef(null)
   const maisRef        = useRef(null)
 
-  const { somAtivo, alternarSom, tocar, volume, definirVolume } = useSom()
-  const [somMenuAberto, setSomMenuAberto] = useState(false)
-  const somMenuRef = useRef(null)
-
-  // Fecha o menu de som ao clicar fora
-  useEffect(() => {
-    function handler(e) {
-      if (somMenuRef.current && !somMenuRef.current.contains(e.target))
-        setSomMenuAberto(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  function handleToggleSom() {
-    if (somAtivo) tocar('click')
-    alternarSom()
-  }
-
-  function handleVolumeChange(e) {
-    definirVolume(parseFloat(e.target.value))
-  }
-
-  // Ícone varia conforme volume e estado mudo
-  function IconeVolume() {
-    if (!somAtivo || volume === 0) return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="18" height="18">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-      </svg>
-    )
-    if (volume < 0.4) return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="18" height="18">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75a5.25 5.25 0 010 4.5M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-      </svg>
-    )
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="18" height="18">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-      </svg>
-    )
-  }
+  // O som só é disparado por aqui — os controles de volume e mute ficaram na
+  // página de Configurações. A navbar guarda apenas o toque de navegação.
+  const { tocar } = useSom()
 
   const ehBibliotecario = isBibliotecario()
 
@@ -139,6 +102,13 @@ export default function Navbar() {
   function irParaPerfil() {
     setMenuUsuario(false); setMaisAberto(false)
     navigate('/meu-perfil')
+  }
+
+  // No desktop as Configurações ficam no ícone da navbar. Este caminho é o
+  // delas no mobile, pelo painel "Mais".
+  function irParaConfig() {
+    setMaisAberto(false)
+    navigate('/configuracoes')
   }
 
   // ── Itens da bottom bar por perfil ───────────────────────
@@ -243,63 +213,15 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Dropdown de volume */}
-        <div className="navbar-som-wrapper" ref={somMenuRef}>
-          <button
-            className="navbar-som-btn"
-            onClick={() => { tocar('click'); setSomMenuAberto(v => !v) }}
-            data-mudo={(!somAtivo || volume === 0) ? 'true' : undefined}
-            title="Controle de volume"
-            aria-label="Controle de volume"
-            aria-expanded={somMenuAberto}
-            aria-haspopup="true"
-          >
-            <IconeVolume />
-          </button>
-
-          {somMenuAberto && (
-            <div className="navbar-som-dropdown" role="dialog" aria-label="Controle de volume">
-              {/* Linha de mute */}
-              <button
-                className={`som-dd-mute ${!somAtivo || volume === 0 ? 'som-dd-mute--mudo' : ''}`}
-                onClick={handleToggleSom}
-              >
-                <IconeVolume />
-                <span>{somAtivo && volume > 0 ? 'Mutado ao clicar' : 'Som mutado'}</span>
-                <span className="som-dd-estado">{somAtivo && volume > 0 ? 'Ativo' : 'Mudo'}</span>
-              </button>
-
-              <div className="som-dd-divider" />
-
-              {/* Slider de volume */}
-              <div className="som-dd-volume">
-                <span className="som-dd-label">Volume</span>
-                <div className="som-dd-slider-row">
-                  {/* ícone mínimo */}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14" className="som-dd-icon-min">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75a5.25 5.25 0 010 4.5M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-                  </svg>
-                  <input
-                    className="som-dd-slider"
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    value={somAtivo ? volume : 0}
-                    onChange={handleVolumeChange}
-                    aria-label="Volume dos sons"
-                    style={{ '--pct': `${(somAtivo ? volume : 0) * 100}%` }}
-                  />
-                  {/* ícone máximo */}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14" className="som-dd-icon-max">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-                  </svg>
-                </div>
-                <span className="som-dd-pct">{somAtivo ? Math.round(volume * 100) : 0}%</span>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Configurações — leva à página de som e aparência */}
+        <button
+          className="navbar-config-btn"
+          onClick={() => { tocar('navigate'); navigate('/configuracoes') }}
+          title="Configurações"
+          aria-label="Configurações"
+        >
+          <IconeEngrenagem />
+        </button>
       </nav>
 
       {/* ════════════════════════════════════════════════
@@ -356,6 +278,10 @@ export default function Navbar() {
                   {IconePerfil}
                   Ver perfil
                 </button>
+                <button className="bottom-bar-mais-item" role="menuitem" onClick={irParaConfig}>
+                  <IconeEngrenagem />
+                  Configurações
+                </button>
                 <button className="bottom-bar-mais-item bottom-bar-mais-sair" role="menuitem" onClick={handleLogout}>
                   {IconeSair}
                   Sair
@@ -381,19 +307,19 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* Toggle de som — bottom bar (abre o mesmo dropdown acima) */}
-        <button
-          className="navbar-som-btn bottom-bar-item"
-          onClick={() => { tocar('click'); setSomMenuAberto(v => !v) }}
-          data-mudo={(!somAtivo || volume === 0) ? 'true' : undefined}
-          aria-label="Controle de volume"
-          aria-pressed={somAtivo}
+        {/* Configurações — na bottom bar vira um item normal da navegação.
+            O controle de som saiu daqui: ele vive na página de Configurações. */}
+        <NavLink
+          to="/configuracoes"
+          className={({ isActive }) =>
+            `bottom-bar-item ${isActive ? 'bottom-bar-item--ativo' : ''}`
+          }
+          aria-label="Configurações"
+          onClick={() => tocar('navigate')}
         >
-          <span className="bottom-bar-icone">
-            <IconeVolume />
-          </span>
-          <span className="bottom-bar-label">{somAtivo && volume > 0 ? 'Som' : 'Mudo'}</span>
-        </button>
+          <span className="bottom-bar-icone"><IconeEngrenagem /></span>
+          <span className="bottom-bar-label">Ajustes</span>
+        </NavLink>
 
       </nav>
     </>
